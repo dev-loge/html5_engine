@@ -1,53 +1,36 @@
+var canvas = document.getElementById('game-canvas');
+var engine = new Engine(canvas);
+
 //========Test Scene=========
 class TestScene extends Scene {
     constructor() {
         super('Test Scene');
 
         this.player = {
-            x: 50,
-            y: 50,
-            width: 50,
-            height: 50,
-            color: 'red',
-            speed: 3,
-            controlScheme: {
-                'w': '-y',
-                's': '+y',
-                'a': '-x',
-                'd': '+x'
-            },
-
-            playerController: function() {
-                Object.keys(engine.input)
-                    .filter(key => engine.input[key] instanceof Set)
-                    .forEach(set => {
-                        Object.keys(this.controlScheme).forEach(dir => {
-                            if(engine.input[set].has(dir)) {
-                                this[this.controlScheme[dir][1]] += (this.controlScheme[dir][0] === '+' ? 1 : -1) * this.speed;
-                            }
-                            //keep the rectangle within the bounds of the canvas
-                            this.x = Math.min(Math.max(this.x, 0), canvas.width - this.width);
-                            this.y = Math.min(Math.max(this.y, 0), canvas.height - this.height);
-                        });
-                });
-            },
-            
-            draw: function() {
-                engine.canvasCtx.fillStyle = this.color;
-                engine.canvasCtx.fillRect(this.x, this.y, this.width, this.height);
-            }
+            components: ['properties', 'playerController'],
+            //TODO: This is not working, write code in registerGameObject to define the properties and playerController objects on the game object
+            properties: new Properties(engine, this, { 
+                                                x: 50,
+                                                y: 50,
+                                                width: 50,
+                                                height: 50,
+                                                color: 'red'
+                                            }),
+            playerController: new PlayerController(engine, this.player),
         }
+
+
         this.obstacle = {
-            objId: 'obstacle-rect',
-            x: 200,
-            y: 200,
-            width: 100,
-            height: 50,
-            color: 'blue',
-            draw: function() {
-                engine.canvasCtx.fillStyle = this.color;
-                engine.canvasCtx.fillRect(this.x, this.y, this.width, this.height);
-            }
+            components: [
+                'properties'
+            ],
+            properties: new Properties(engine, this.obstacle, { 
+                                                x: 200,
+                                                y: 200,
+                                                width: 100,
+                                                height: 50,
+                                                color: 'blue'
+                                            })
         }
 
         this.registerGameObject(this.player);
@@ -56,8 +39,7 @@ class TestScene extends Scene {
 }
 
 //========Boot=========
-var canvas = document.getElementById('game-canvas');
-var engine = new Engine(canvas);
+
 
 engine.onCreate = function() {
     var testScene = new TestScene();
@@ -65,19 +47,3 @@ engine.onCreate = function() {
 }
 
 engine.start();
-
-var GameLoop = function() {
-    //=======UPDATE STAGE========
-        engine.currentScene.update();
-
-        engine.input.update();
-
-    //=======DRAW STAGE========
-        engine.canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        engine.currentScene.draw();
-}
-
-setInterval(GameLoop, 1000/60);
-
-

@@ -1,4 +1,4 @@
-class Scene {
+export class Scene {
     constructor(name) {
         this.name = name;
         this.gameObjects = [];

@@ -1,4 +1,7 @@
-class Engine {
+import { Renderer } from './render.js';
+import { InputManager } from './input.js';
+
+export class Engine {
     constructor(canvas) {
         this.canvas = canvas;
         this.renderer = new Renderer(canvas);
@@ -40,7 +43,7 @@ class Engine {
 
         // update game objects
         this.currentScene.gameObjects.forEach(gameObject => {
-            gameObject.components.forEach(componentKey => {
+            gameObject.componentsList.forEach(componentKey => {
                 gameObject[componentKey].update();
             });
             /*

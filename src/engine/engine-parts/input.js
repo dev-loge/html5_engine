@@ -1,4 +1,4 @@
-class InputManager {
+export class InputManager {
     constructor() {
         this.keyPressed = new Set();
         this.keyDown = new Set();

@@ -1,17 +1,19 @@
+import { Component } from '../engine-parts/component.js';
+
 class PlayerController extends Component {
-    constructor(engine, gameObject) {  
+    constructor(engine, gameObject, inputObject) {  
         super(engine, gameObject);
-        this.controlScheme = {
-                            'w': '-y',
-                            's': '+y',
-                            'a': '-x',
-                            'd': '+x',
-                            'ArrowUp': '-y',
-                            'ArrowDown': '+y',
-                            'ArrowLeft': '-x',
-                            'ArrowRight': '+x'
-                        },
-        this.speed = 0;
+        this.controlScheme = inputObject || {
+                                                'w': '-y',
+                                                's': '+y',
+                                                'a': '-x',
+                                                'd': '+x',
+                                                'ArrowUp': '-y',
+                                                'ArrowDown': '+y',
+                                                'ArrowLeft': '-x',
+                                                'ArrowRight': '+x'
+                                            },
+        this.speed = inputObject && inputObject.speed ? inputObject.speed : 3;
     }
 
     setControlScheme(scheme) {
@@ -31,30 +33,19 @@ class PlayerController extends Component {
     }
 
     update() {
-        engine.input.inputs.forEach(set => {
-            console.log(this.gameObject)
+        this.engine.input.inputs.forEach(set => {
             Object.keys(this.controlScheme).forEach(key => {
-                if(engine.input[set].has(key)) {
-                    /*
-                        controlScheme: {
-                            'w': '-y',
-                            's': '+y',
-                            'a': '-x',
-                            'd': '+x',
-                            'ArrowUp': '-y',
-                            'ArrowDown': '+y',
-                            'ArrowLeft': '-x',
-                            'ArrowRight': '+x'
-                        }
-
-                    */
+                if(this.engine.input[set].has(key)) {
+                    
                     if (this.controlScheme[key][1] === 'x' || this.controlScheme[key][1] === 'y') {
-                        var currentValue = this.gameObject.properties.getProperty(this.controlScheme[key][1]) || 0;
+                        var currentValue = this.gameObject.getProperty(this.controlScheme[key][1]) || 0;
                         var newValue = currentValue + (this.controlScheme[key][0] === '+' ? 1 : -1) * this.speed;
-                        this.gameObject.properties.setProperty(this.controlScheme[key][1], newValue)
+                        this.gameObject.setProperty(this.controlScheme[key][1], newValue)
                     }
                 }
             });
         });
     }
 }
+
+export default PlayerController;

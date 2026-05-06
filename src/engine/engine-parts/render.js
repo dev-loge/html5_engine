@@ -1,4 +1,4 @@
-class Renderer {
+export class Renderer {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
@@ -16,8 +16,14 @@ class Renderer {
         // Placeholder for rendering logic
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         scene.gameObjects.forEach(gameObject => {
-            this.ctx.fillStyle = gameObject.color;
-            this.ctx.fillRect(gameObject.x, gameObject.y, gameObject.width, gameObject.height);
+            var color = gameObject.getProperty('color') || 'black';
+            var x = gameObject.getProperty('x') || 0;
+            var y = gameObject.getProperty('y') || 0;
+            var width = gameObject.getProperty('width') || 0;
+            var height = gameObject.getProperty('height') || 0;
+
+            this.ctx.fillStyle = color;
+            this.ctx.fillRect(x, y, width, height);
         });
 
         /*

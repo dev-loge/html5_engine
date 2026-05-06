@@ -1,7 +1,8 @@
-class Component {
-    constructor(engine, gameObject) {
+export class Component {
+    constructor(engine, gameObject, inputObject) {
         this.engine = engine;
         this.gameObject = gameObject;
+        this.inputObject = inputObject;
     }
     
     update() {

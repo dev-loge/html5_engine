@@ -19,12 +19,6 @@ export class InputManager {
     }
 
     update() {
-        // clearing input end of frame
-        /*
-        this.inputs.forEach(input => {
-            this[input].clear();
-        });
-        //*/
-
+        //console.log(`Current input states: ${this.inputs.map(set => `${set}: [${[...this[set]].join(', ')}]`).join('; ')}`);
     }
 }

@@ -3,16 +3,17 @@ import { Component } from '../engine-parts/component.js';
 class PlayerController extends Component {
     constructor(engine, gameObject, inputObject) {  
         super(engine, gameObject);
-        this.controlScheme = inputObject || {
-                                                'w': '-y',
-                                                's': '+y',
-                                                'a': '-x',
-                                                'd': '+x',
-                                                'ArrowUp': '-y',
-                                                'ArrowDown': '+y',
-                                                'ArrowLeft': '-x',
-                                                'ArrowRight': '+x'
-                                            },
+        this.controlScheme = inputObject && inputObject.controlScheme ? inputObject.controlScheme : 
+        {
+            'w': '-y',
+            's': '+y',
+            'a': '-x',
+            'd': '+x',
+            'ArrowUp': '-y',
+            'ArrowDown': '+y',
+            'ArrowLeft': '-x',
+            'ArrowRight': '+x'
+        },
         this.speed = inputObject && inputObject.speed ? inputObject.speed : 3;
     }
 
@@ -33,10 +34,10 @@ class PlayerController extends Component {
     }
 
     update() {
+        //console.log(`Current Input states: ${this.engine.input.inputs.map(set => `${set}: [${[...this.engine.input[set]].join(', ')}]`).join('; ')}`);
         this.engine.input.inputs.forEach(set => {
             Object.keys(this.controlScheme).forEach(key => {
                 if(this.engine.input[set].has(key)) {
-                    
                     if (this.controlScheme[key][1] === 'x' || this.controlScheme[key][1] === 'y') {
                         var currentValue = this.gameObject.getProperty(this.controlScheme[key][1]) || 0;
                         var newValue = currentValue + (this.controlScheme[key][0] === '+' ? 1 : -1) * this.speed;

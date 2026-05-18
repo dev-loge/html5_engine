@@ -15,8 +15,8 @@ export class Engine {
         this.autoRegisterScenes();
         // onCreate happens before checking for scenes in case first scene is created in onCreate
         this.onCreate();
-        console.log(this.scenes);
         if (this.currentScene == null && this.scenes.length > 0) {
+            this.scenes[0].setupScene();
             this.currentScene = this.scenes[0];
         } else if (this.scenes.length === 0) {
             console.error('No scenes registered to start the engine.');
@@ -42,7 +42,6 @@ export class Engine {
 
     registerScene(scene) {
         if (scene) {
-            console.log(`Registering scene: ${scene.name}`);
             this.scenes.push(scene);
             return true;
         } else {
@@ -56,9 +55,11 @@ export class Engine {
         var scene = this.scenes.find(s => s.name === sceneName);
         console.log(`Found scene: ${scene ? scene.name : 'None'}`);
         if (scene) {
-            console.log(`Switching to scene: ${sceneName}`);
+
+            this.currentScene.reset();
+            scene.setupScene();
             this.currentScene = scene;
-            console.log(`Current scene is now: ${this.currentScene.name}`);
+
             return true;
         }
         return false;
@@ -74,12 +75,6 @@ export class Engine {
             gameObject.componentsList.forEach(componentKey => {
                 gameObject[componentKey].update();
             });
-            /*
-            if (gameObject.playerController && typeof gameObject.playerController === 'function') {
-                gameObject.playerController();
-            }
-            //*/
-            
         });
 
         //=======DRAW STAGE========

@@ -1,54 +1,24 @@
 import { Scene } from '../engine/engine-parts/scene.js';
-import { GameObject } from '../engine/engine-parts/game-object.js';
+import Player from '../assets/templates/Player.js';
+import Door from '../assets/templates/Door.js';
 
 class Level1 extends Scene {
     constructor(engine) {
         super('Level1');
+        this.engine = engine;
 
-        this.player = new GameObject(engine, {
-            Properties: {  
-                x: 225,
-                y: 225,
-                width: 50,
-                height: 50,
-                color: 'red'
-            },
-            PlayerController: {speed: 2},
-            Hitbox: false
-        });
-
-        this.obstacle = new GameObject(engine, {
-            Properties: { 
-                x: 200,
-                y: 200,
-                width: 100,
-                height: 50,
-                color: 'blue'
-            }
-        });
-
-        this.door = new GameObject(engine, {
-            Properties: { 
-                x: 0,
-                y: 200,
-                width: 25,
-                height: 100,
-                color: 'brown'
-            },
-            Hitbox: {
-                type: 'onEnter',
-                events: [
-                    (self, other) => {
-                        engine.goToScene('Level2');
-                    }
-                ]
-            }
-        });
-
-        this.registerGameObject(this.door);
-        this.registerGameObject(this.obstacle);
-        this.registerGameObject(this.player);
     }
+
+    setupScene() {
+        var gameObjects = [
+            new Player(this.engine, 225, 225),
+
+            new Door(this.engine, 0, 200, 25, 100, 'brown', 'Level2')
+        ];
+
+        gameObjects.forEach(obj => this.registerGameObject(obj));
+    }
+
 }
 
 export default Level1;

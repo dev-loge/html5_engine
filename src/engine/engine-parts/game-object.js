@@ -73,11 +73,18 @@ export class GameObject {
         }
     }
 
+    destroy() {
+        var scene = this.engine.currentScene;
+        scene.gameObjects = scene.gameObjects.filter(obj => obj !== this);
+        // Additional cleanup if necessary (e.g. removing references to this object in other components)
+    }
+
     update() {
         // Placeholder for game object-specific update logic, to be overridden by subclasses
     }
 
 }
+
 var isValidColor = (color) => {
     var s = new Option().style;
     s.color = color;

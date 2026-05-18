@@ -2,19 +2,11 @@
 /*
 ==========================TODO==========================
 Priority:
- 1. Change how GameObjects are created and handled 
+ 1. Change how Scenes are stored and registered in the Engine
 
-   - Instead of creating game objects directly in the scene constructor, 
-     create a separate method for setting up the scene (e.g. setupScene) that is 
-     called when the scene is switched to. This allows for better organization and easier resetting of 
-     scenes.
+   - Instead of storing scenes as subclasses, store them as json's that get passed to the scene class.
 
-   - Add a way to easily reference and manipulate game objects in the scene 
-     (e.g. by giving them unique IDs or tags)
-   
-   - GameObject destruction and cleanup when switching scenes
-     (GameObjects should have a destroy method that removes them from the scene and cleans up any 
-     references to them)
+   - Do something similar for templates & GameObject class,
 
  2. Further develop hitboxes
 
@@ -43,4 +35,8 @@ Priority:
 =========================BUGS============================
   - Inputs not clearing from keyRelease, causing player to keep moving after key is released sometimes
 
+
+=========================OPTIMIZATIONS========================
+ - engine is passed to all subclasses, causing it to be saved within itself several times
+   Instead, objects & components should look upstream to find the engine class in the scene. (may have to pipeline that data downstream)
 */

@@ -1,21 +1,36 @@
 import * as componentClasses from '../components/component-exports.js';
 
 export class GameObject {
-    constructor(engine, components) {
+    constructor(engine, template, components) {
         this.engine = engine;
-        if (!components.Properties)
+
+        function loadComponents(componentsList) {
+            componentsList.forEach(componentName => {
+                if (componentClasses[componentName]) {
+                    var inputData = template[componentName] || components[componentName] || {}; //is failing here if component is undefined
+                    this[componentName] = new componentClasses[componentName](engine, this, inputData);
+                } else {
+                    console.warn(`Unknown component: ${componentName}`);
+                }
+            });
+        }
+
+        //Ensure Properties component always exists
+        if (!template.Properties && !components.Properties)
             components.Properties = {'Properties': {}};
-        this.components = components;
-        this.componentsList = Object.keys(this.components);
-        
-        Object.keys(this.components).forEach(componentName => {
-            if (componentClasses[componentName]) {
-                this[componentName] = new componentClasses[componentName](engine, this, this.components[componentName]);
-            } else {
-                console.warn(`Unknown component: ${componentName}`);
-            }
-        });
-    
+
+        //make sure template is valid & load components from it
+        if (template !== null && typeof template === 'object' && !Array.isArray(template)) {
+            this.name = template.name || `GameObject_${Date.now()}`;
+            var templateComponents = Object.keys(template).splice(1);
+            loadComponents.call(this, templateComponents);
+        }
+
+        //load additional components from components argument, if provided
+        if (components && typeof components === 'object' && !Array.isArray(components)) {
+            var additionalComponents = Object.keys(components).filter(c => !this.hasOwnProperty(c));
+            loadComponents.call(this, additionalComponents);
+        }
     }
 
     getProperty(key) {
@@ -59,6 +74,7 @@ export class GameObject {
         this.Properties.properties[key] = value;
     }
 
+    //this doesnt work
     addComponent(componentName, componentData) {
         if (this.componentsList.includes(componentName)) {
             console.warn(`GameObject already has component: ${componentName}`);

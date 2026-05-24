@@ -1,6 +1,6 @@
 import { Renderer } from './render.js';
 import { InputManager } from './input.js';
-import * as Scenes from '../../scenes/scene-exports.js';
+import { Scene } from './scene.js';
 
 export class Engine {
     constructor(canvas) {
@@ -11,10 +11,19 @@ export class Engine {
         this.currentScene = null;
     }
 
-    start() {
-        this.autoRegisterScenes();
-        // onCreate happens before checking for scenes in case first scene is created in onCreate
-        this.onCreate();
+    async start() {
+        var res = await fetch('./scenes/scene-exports.json');
+        var { files } = await res.json();
+
+        var scenesData = await Promise.all(
+            files.map(file => fetch(`./scenes/${file}`).then(r => r.json()))
+        )
+
+        scenesData.forEach(sceneData => {
+            console.log('Loaded Scene: ', sceneData.name)
+            this.registerScene(new Scene(this, sceneData.name, sceneData));
+        });
+
         if (this.currentScene == null && this.scenes.length > 0) {
             this.scenes[0].setupScene();
             this.currentScene = this.scenes[0];
@@ -23,21 +32,6 @@ export class Engine {
         }
 
         requestAnimationFrame(this.loop.bind(this));
-    }
-
-    autoRegisterScenes() {
-        Object.values(Scenes).forEach(SceneClass => {
-            if (typeof SceneClass !== 'function') {
-                return;
-            }
-
-            try {
-                var scene = new SceneClass(this);
-                this.registerScene(scene);
-            } catch (error) {
-                console.error('Failed to auto-register scene:', SceneClass, error);
-            }
-        });
     }
 
     registerScene(scene) {
@@ -81,10 +75,5 @@ export class Engine {
         this.renderer.renderFrame(this.currentScene);
 
         requestAnimationFrame(this.loop.bind(this));
-    }
-
-    //Placeholder functions
-    onCreate() {
-        return true;
     }
 }

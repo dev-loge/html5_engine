@@ -1,0 +1,26 @@
+{
+    "name": "Level1",
+    "objects": [
+        {   
+            "type": "template",
+            "template": "Player.json",
+            "templateData": {
+                "position": {
+                    "x": 225,
+                    "y": 225
+                }
+            }
+        },
+        {
+            "type": "template",
+            "template": "Door.json",
+            "templateData": {
+                "position": {
+                    "x": 0,
+                    "y": 200
+                },
+                "targetScene": "Level2"
+            }
+        }
+    ]
+}

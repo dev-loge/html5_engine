@@ -1,0 +1,19 @@
+{
+    "name": "Door",
+    "expectedData": {
+        "targetScene": "string"
+    },
+    "components": {
+        "Properties": {
+            "width": 25,
+            "height": 100,
+            "color": "brown"
+        },
+        "Hitbox": {
+            "type": "onEnter",
+            "events": [
+            "goToScene"
+            ]
+        }
+    }
+}

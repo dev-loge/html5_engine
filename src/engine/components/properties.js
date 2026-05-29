@@ -1,8 +1,8 @@
 import { Component } from '../engine-parts/component.js';
 
 class Properties extends Component {
-    constructor(engine, gameObject, inputObject) {
-        super(engine, gameObject);
+    constructor(gameObject, inputObject) {
+        super(gameObject, inputObject);
         this.properties = inputObject || {position:{x: 0, y: 0}, width: 0, height: 0, color: 'black'};
     }
 

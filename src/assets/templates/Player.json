@@ -2,8 +2,10 @@
     "name": "Player",
     "components":{
         "Properties": {
-            "width": 50,
-            "height": 50,
+            "size": {
+                "w": 50,
+                "h": 50
+            },
             "color": "blue"
         },
         "PlayerController": { "speed": 2 },

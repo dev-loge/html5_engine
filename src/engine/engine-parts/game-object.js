@@ -1,48 +1,46 @@
 import * as componentClasses from '../components/component-exports.js';
+import { getEngineInstance } from './engine-exports.js';
 
 export class GameObject {
-    constructor(engine, template, components) {
-        this.engine = engine;
-
-        function loadComponents(componentsList) {
-            componentsList.forEach(componentName => {
-                if (componentClasses[componentName]) {
-                    var inputData = template[componentName] || components[componentName] || {}; //is failing here if component is undefined
-                    this[componentName] = new componentClasses[componentName](engine, this, inputData);
-                } else {
-                    console.warn(`Unknown component: ${componentName}`);
-                }
-            });
-        }
+    constructor(template, components) {
+        this.engine = getEngineInstance();
+        this.name = template.name || `GameObject_${Date.now()}`;
+        console.log('Created GameObject: ', this.name);
 
         //Ensure Properties component always exists
-        if (!template.Properties && !components.Properties)
-            components.Properties = {'Properties': {}};
+        if (!template.components.Properties && !components.Properties)
+            template.components.Properties = {};
 
-        //make sure template is valid & load components from it
-        if (template !== null && typeof template === 'object' && !Array.isArray(template)) {
-            this.name = template.name || `GameObject_${Date.now()}`;
-            var templateComponents = Object.keys(template).splice(1);
-            loadComponents.call(this, templateComponents);
-        }
-
-        //load additional components from components argument, if provided
-        if (components && typeof components === 'object' && !Array.isArray(components)) {
-            var additionalComponents = Object.keys(components).filter(c => !this.hasOwnProperty(c));
-            loadComponents.call(this, additionalComponents);
-        }
+        //validate template and load components
+        var componentsList = [];
+        if (template && template.components) componentsList = Object.keys(template.components);
+        if (components) componentsList = [...new Set([...componentsList, ...Object.keys(components)])];
+        componentsList.forEach(componentName => {
+            if (componentClasses[componentName]) {
+                var inputData = template.components[componentName] || {};
+                if (components && components[componentName]) {
+                    inputData = {...inputData, ...components[componentName]};
+                }
+                if (componentName === 'Properties' && this.name === 'Obstacle') {
+                    console.log('Properties input data for Obstacle: ', inputData);
+                }
+                this[componentName] = new componentClasses[componentName](this, inputData);
+            } else {
+                console.warn(`Unknown component: ${componentName}`);
+            }
+        });
     }
 
     getProperty(key) {
         if (!(key in this.Properties.properties)) {
-            console.warn(`Property ${key} does not exist on GameObject`);
+            console.warn(`Property ${key} does not exist on id ${this.id} (${this.name})`);
             return undefined;
         }
         return this.Properties.properties[key];
     }
 
     setProperty(key, value) {
-        var numericProps = ['x', 'y', 'width', 'height'];
+        var numericProps = ['width', 'height'];
 
         switch(key) {
             case numericProps.find(prop => prop === key):
@@ -51,14 +49,10 @@ export class GameObject {
                     return;
                 }
 
-                if (key === 'x' || key === 'y') {
-                    // Ensure the position stays within the canvas bounds
-                    value = Math.max(0, Math.min(value, key === 'x' ? this.engine.canvas.width - this.getProperty('width') : this.engine.canvas.height - this.getProperty('height')));
-                } else if (key === 'width' || key === 'height') {
+                if (key === 'width' || key === 'height') {
                     // Ensure width and height are positive and do not exceed canvas dimensions
-                    value = Math.max(1, Math.min(value, key === 'width' ? this.engine.canvas.width - this.getProperty('x') : this.engine.canvas.height - this.getProperty('y')));
+                    value = Math.max(1, Math.min(value, key === 'width' ? this.engine.canvas.width - this.getPosition('x') : this.engine.canvas.height - this.getPosition('y')));
                 }
-
 
                 break;
             case 'color':
@@ -74,21 +68,29 @@ export class GameObject {
         this.Properties.properties[key] = value;
     }
 
-    //this doesnt work
-    addComponent(componentName, componentData) {
-        if (this.componentsList.includes(componentName)) {
-            console.warn(`GameObject already has component: ${componentName}`);
-            return;
-        }
-
-        try {
-            this.components[componentName] = componentData || {};
-            this.componentsList = Object.keys(this.components);
-        } catch (error) {
-            console.error(`Error adding component ${componentName}:`, error);
-        }
+    getPosition(axis) {
+        if (axis) {
+            switch(axis) {
+                case 'x':
+                    return this.Properties.properties.position.x;
+                case 'y':
+                    return this.Properties.properties.position.y;
+                default:
+                    console.warn(`Invalid axis for getPosition: ${axis}`);
+                    return undefined;
+            }
+        } else return this.getProperty('position');
     }
 
+    setPosition(x, y) {
+        if (typeof x !== 'number' || typeof y !== 'number') {
+            console.error(`Invalid values for setPosition: expected numbers, got ${typeof x} and ${typeof y}`);
+            return;
+        }
+        this.Properties.properties.position.x = Math.max(0, Math.min(x, this.engine.canvas.width - this.getProperty('size').w));
+        this.Properties.properties.position.y = Math.max(0, Math.min(y, this.engine.canvas.height - this.getProperty('size').h));
+    }
+    
     destroy() {
         var scene = this.engine.currentScene;
         scene.gameObjects = scene.gameObjects.filter(obj => obj !== this);

@@ -1,8 +1,8 @@
 import { Component } from '../engine-parts/component.js';
 
 class PlayerController extends Component {
-    constructor(engine, gameObject, inputObject) {  
-        super(engine, gameObject);
+    constructor(gameObject, inputObject) {  
+        super(gameObject, inputObject);
         this.controlScheme = inputObject && inputObject.controlScheme ? inputObject.controlScheme : 
         {
             'w': '-y',
@@ -39,9 +39,13 @@ class PlayerController extends Component {
             Object.keys(this.controlScheme).forEach(key => {
                 if(this.engine.input[set].has(key)) {
                     if (this.controlScheme[key][1] === 'x' || this.controlScheme[key][1] === 'y') {
-                        var currentValue = this.gameObject.getProperty(this.controlScheme[key][1]) || 0;
+                        var currentValue = this.gameObject.getPosition(this.controlScheme[key][1]) || 0;
                         var newValue = currentValue + (this.controlScheme[key][0] === '+' ? 1 : -1) * this.speed;
-                        this.gameObject.setProperty(this.controlScheme[key][1], newValue)
+                        if (this.controlScheme[key][1] === 'x') {
+                            this.gameObject.setPosition(newValue, this.gameObject.getPosition('y'));
+                        } else if (this.controlScheme[key][1] === 'y') {
+                            this.gameObject.setPosition(this.gameObject.getPosition('x'), newValue);
+                        }
                     }
                 }
             });

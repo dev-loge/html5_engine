@@ -5,14 +5,16 @@
     },
     "components": {
         "Properties": {
-            "width": 25,
-            "height": 100,
+            "size": {
+                "w": 25,
+                "h": 100
+            },
             "color": "brown"
         },
         "Hitbox": {
             "type": "onEnter",
             "events": [
-            "goToScene"
+                "goToScene"
             ]
         }
     }

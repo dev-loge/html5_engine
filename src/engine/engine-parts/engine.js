@@ -1,9 +1,14 @@
 import { Renderer } from './render.js';
 import { InputManager } from './input.js';
 import { Scene } from './scene.js';
+import { setEngineInstance, getEngineInstance } from './engine-exports.js';
 
 export class Engine {
     constructor(canvas) {
+        if (getEngineInstance()) {
+            console.warn('Engine instance already exists. Reusing the existing instance is recommended.');
+        }
+        setEngineInstance(this);
         this.canvas = canvas;
         this.renderer = new Renderer(canvas);
         this.input = new InputManager();
@@ -11,17 +16,21 @@ export class Engine {
         this.currentScene = null;
     }
 
+    static getInstance() {
+        return getEngineInstance();
+    }
+
     async start() {
-        var res = await fetch('./scenes/scene-exports.json');
+        var res = await fetch('./assets/scenes/scene-exports.json');
         var { files } = await res.json();
 
         var scenesData = await Promise.all(
-            files.map(file => fetch(`./scenes/${file}`).then(r => r.json()))
+            files.map(file => fetch(`./assets/scenes/${file}`).then(r => r.json()))
         )
 
         scenesData.forEach(sceneData => {
-            console.log('Loaded Scene: ', sceneData.name)
-            this.registerScene(new Scene(this, sceneData.name, sceneData));
+            //console.log('Loaded Scene: ', sceneData.name)
+            this.registerScene(new Scene(sceneData.name, sceneData));
         });
 
         if (this.currentScene == null && this.scenes.length > 0) {
@@ -66,7 +75,8 @@ export class Engine {
 
         // update game objects
         this.currentScene.gameObjects.forEach(gameObject => {
-            gameObject.componentsList.forEach(componentKey => {
+            var componentsList = Object.keys(gameObject).filter(key => gameObject[key].isComponent);
+            componentsList.forEach(componentKey => {
                 gameObject[componentKey].update();
             });
         });

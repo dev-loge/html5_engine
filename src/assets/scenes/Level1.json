@@ -21,6 +21,21 @@
                 },
                 "targetScene": "Level2"
             }
+        },
+        {
+            "type": "template",
+            "template": "Obstacle.json",
+            "templateData": {
+                "position": {
+                    "x": 300,
+                    "y": 150
+                },
+                "size": {
+                    "width": 25,
+                    "height": 200
+                },
+                "color": "red"
+            }
         }
     ]
 }

@@ -1,0 +1,19 @@
+{
+    "name": "Obstacle",
+    "expectedData": {
+        
+    },
+    "components": {
+        "Properties": {
+            "size": {
+            "w": 25,
+            "h": 25
+        },
+        "color": "red"
+        },
+        "Hitbox": {
+            "type": "onEnter",
+            "events": []
+        }
+    }
+}

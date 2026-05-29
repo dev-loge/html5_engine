@@ -1,17 +1,17 @@
 import { Component } from "../engine-parts/component.js";
 
 class Hitbox extends Component {
-    constructor(engine, gameObject, inputObject) {
-        super(engine, gameObject, inputObject);
+    constructor(gameObject, inputObject) {
+        super(gameObject, inputObject);
         this.hitbox = {
-            x: inputObject.x || gameObject.getProperty('x'),
-            y: inputObject.y || gameObject.getProperty('y'),
-            width: inputObject.width || gameObject.getProperty('width'),
-            height: inputObject.height || gameObject.getProperty('height')
+            x: inputObject.x || gameObject.getPosition('x'),
+            y: inputObject.y || gameObject.getPosition('y'),
+            width: inputObject.width || gameObject.getProperty('size').w,
+            height: inputObject.height || gameObject.getProperty('size').h
         };
         this.offsets = {
-            x: this.hitbox.x - gameObject.getProperty('x'),
-            y: this.hitbox.y - gameObject.getProperty('y')
+            x: this.hitbox.x - gameObject.getPosition('x'),
+            y: this.hitbox.y - gameObject.getPosition('y')
         };
 
         this.events = inputObject.events || [];
@@ -46,13 +46,13 @@ class Hitbox extends Component {
 
     update() {
         // Update hitbox position based on game object position and offsets
-        this.hitbox.x = this.gameObject.getProperty('x') + this.offsets.x;
-        this.hitbox.y = this.gameObject.getProperty('y') + this.offsets.y;
+        this.hitbox.x = this.gameObject.getPosition('x') + this.offsets.x;
+        this.hitbox.y = this.gameObject.getPosition('y') + this.offsets.y;
 
         // Check for collisions with other game objects
-        var gameObjectHitboxList = this.engine.currentScene.gameObjects.filter(obj => obj.componentsList.includes('Hitbox') && obj !== this.gameObject);
+        var gameObjectHitboxList = this.engine.currentScene.gameObjects.filter(obj => obj.Hitbox && obj !== this.gameObject);
         gameObjectHitboxList.forEach(otherObject => {
-            if (otherObject !== this.gameObject && otherObject.componentsList.includes('Hitbox')) {
+            if (otherObject !== this.gameObject && otherObject.Hitbox) {
                 const otherHitbox = otherObject.Hitbox.hitbox;
                 if (this.checkCollision(this.hitbox, otherHitbox)) {
                     // Collision detected

@@ -2,41 +2,52 @@
 /*
 ==========================TODO==========================
 Priority:
- 1. Change how Scenes are stored and registered in the Engine
+ 1. Script Component (for custom behavior)
 
-   - Instead of storing scenes as subclasses, store them as json's that get passed to the scene class.
-
-   - Do something similar for templates & GameObject class,
 
  2. Further develop hitboxes
+
+   - Figure our how to configure event functions. (Maybe from a script component?)
+
+   - Multiple hitboxes per object
 
    - Add tags to hitboxes for more specific collision handling
 
 
- 3. Sprite Component (rendering images instead of simple shapes)
+ 3. Physics Component 
+  
+   - rather than have simulation logic live in this component, run a physics simulation in the engine loop (or in seperate sim)
+     and have the components read/write to it 
+     
+ 
+ 4. Sprite Component (rendering images instead of simple shapes)
 
    - Asset management system for loading and managing sprites
 
    - Further develop Renderer to support this (and custom drawing functions in general)
 
- 
- 4. Animation system (frame-based animations, tweening, etc.)
+
+ 5. Animation system (frame-based animations, tweening, etc.)
 
  
- 5. Scene management (scene transitions)
-
- 6. Audio management (playing sounds, music, etc.)
+ 6. Scene management (scene transitions)
 
 
- 7. WebGL rendering (shaders, textures, sprites, etc.)
+ 7. Audio management (playing sounds, music, etc.)
+
+
+ 8. WebGL rendering (shaders, textures, sprites, etc.)
    - Potentially use to send graphics data to GPU for more efficient rendering, even for simple shapes & 
      sprites
 
-=========================BUGS============================
+  
+ 
+
+
+ =========================BUGS============================
   - Inputs not clearing from keyRelease, causing player to keep moving after key is released sometimes
 
 
 =========================OPTIMIZATIONS========================
- - engine is passed to all subclasses, causing it to be saved within itself several times
-   Instead, objects & components should look upstream to find the engine class in the scene. (may have to pipeline that data downstream)
+ 
 */

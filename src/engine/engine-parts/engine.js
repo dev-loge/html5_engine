@@ -1,7 +1,7 @@
 import { Renderer } from './render.js';
 import { InputManager } from './input.js';
 import { Scene } from './scene.js';
-import { setEngineInstance, getEngineInstance } from './engine-exports.js';
+import { setEngineInstance, getEngineInstance } from './utils/engine-instance.js';
 
 export class Engine {
     constructor(canvas) {
@@ -21,7 +21,7 @@ export class Engine {
     }
 
     async start() {
-        var res = await fetch('./assets/scenes/scene-exports.json');
+        var res = await fetch('./engine/engine-parts/utils/scene-exports.json');
         var { files } = await res.json();
 
         var scenesData = await Promise.all(
@@ -30,7 +30,7 @@ export class Engine {
 
         scenesData.forEach(sceneData => {
             //console.log('Loaded Scene: ', sceneData.name)
-            this.registerScene(new Scene(sceneData.name, sceneData));
+            this.registerScene(new Scene(sceneData.name, sceneData, undefined, this));
         });
 
         if (this.currentScene == null && this.scenes.length > 0) {
@@ -70,16 +70,24 @@ export class Engine {
 
     loop() {
         //=======UPDATE STAGE========
+        // guard against missing scene
+        if (!this.currentScene) {
+            console.warn('No scenes registered, ending loop.');
+            return;
+        }
+
         //update input states
         this.input.update();
 
         // update game objects
-        this.currentScene.gameObjects.forEach(gameObject => {
-            var componentsList = Object.keys(gameObject).filter(key => gameObject[key].isComponent);
-            componentsList.forEach(componentKey => {
-                gameObject[componentKey].update();
-            });
-        });
+        for (var i = 0, len = this.currentScene.gameObjects.length; i < len; i++) {
+            var gameObject = this.currentScene.gameObjects[i];
+            var components = gameObject.components;
+            for (var componentKey in components) {
+                if (!Object.prototype.hasOwnProperty.call(components, componentKey)) continue;
+                components[componentKey].update();
+            }
+        }
 
         //=======DRAW STAGE========
         this.renderer.renderFrame(this.currentScene);

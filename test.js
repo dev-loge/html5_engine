@@ -49,5 +49,6 @@ Priority:
 
 
 =========================OPTIMIZATIONS========================
- 
+  - exports folder in engine directory to store file exports accross src
+    (maybe make export files jsons for easier editing & clarity)
 */

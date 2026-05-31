@@ -34,21 +34,21 @@ class PlayerController extends Component {
     }
 
     update() {
-        //console.log(`Current Input states: ${this.engine.input.inputs.map(set => `${set}: [${[...this.engine.input[set]].join(', ')}]`).join('; ')}`);
-        this.engine.input.inputs.forEach(set => {
-            Object.keys(this.controlScheme).forEach(key => {
-                if(this.engine.input[set].has(key)) {
-                    if (this.controlScheme[key][1] === 'x' || this.controlScheme[key][1] === 'y') {
-                        var currentValue = this.gameObject.getPosition(this.controlScheme[key][1]) || 0;
-                        var newValue = currentValue + (this.controlScheme[key][0] === '+' ? 1 : -1) * this.speed;
-                        if (this.controlScheme[key][1] === 'x') {
-                            this.gameObject.setPosition(newValue, this.gameObject.getPosition('y'));
-                        } else if (this.controlScheme[key][1] === 'y') {
-                            this.gameObject.setPosition(this.gameObject.getPosition('x'), newValue);
-                        }
-                    }
+        Object.keys(this.controlScheme).forEach(key => {
+            if (this.engine.input.isKeyDown(key)) {
+                var direction = this.controlScheme[key];
+                var axis = direction[1]; // 'x' or 'y'
+                var sign = direction[0] === '+' ? 1 : -1;
+                
+                var currentX = this.gameObject.getPosition('x');
+                var currentY = this.gameObject.getPosition('y');
+                
+                if (axis === 'x') {
+                    this.gameObject.setPosition(currentX + sign * this.speed, currentY);
+                } else if (axis === 'y') {
+                    this.gameObject.setPosition(currentX, currentY + sign * this.speed);
                 }
-            });
+            }
         });
     }
 }

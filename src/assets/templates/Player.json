@@ -8,7 +8,7 @@
             },
             "color": "blue"
         },
-        "PlayerController": { "speed": 2 },
+        "PlayerController": { "speed": 3 },
         "Hitbox": false
     }
 }

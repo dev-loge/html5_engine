@@ -1,11 +1,10 @@
-import { getEngineInstance } from './engine-exports.js';
+import { getEngineInstance } from './utils/engine-instance.js';
 
 export class Component {
     constructor(gameObject, inputObject) {
         this.engine = getEngineInstance();
         this.gameObject = gameObject;
         this.inputObject = inputObject;
-        this.isComponent = true; //used to identify component objects during update loop
     }
     
     update() {

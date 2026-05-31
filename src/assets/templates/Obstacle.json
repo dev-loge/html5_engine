@@ -1,8 +1,5 @@
 {
     "name": "Obstacle",
-    "expectedData": {
-        
-    },
     "components": {
         "Properties": {
             "size": {

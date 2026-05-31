@@ -5,9 +5,11 @@
             "type": "template",
             "template": "Player.json",
             "templateData": {
-                "position": {
-                    "x": 225,
-                    "y": 225
+                "Properties": {
+                    "position": {
+                        "x": 225,
+                        "y": 225
+                    }
                 }
             }
         },
@@ -15,26 +17,29 @@
             "type": "template",
             "template": "Door.json",
             "templateData": {
-                "position": {
-                    "x": 0,
-                    "y": 200
-                },
-                "targetScene": "Level2"
+                "Properties": {
+                    "position": {
+                        "x": 0,
+                        "y": 200
+                    },
+                    "targetScene": "Level2"
+                }
             }
         },
         {
             "type": "template",
             "template": "Obstacle.json",
             "templateData": {
-                "position": {
-                    "x": 300,
-                    "y": 150
-                },
-                "size": {
-                    "width": 25,
-                    "height": 200
-                },
-                "color": "red"
+                "Properties": {
+                    "position": {
+                        "x": 100,
+                        "y": 150
+                    },
+                    "size": {
+                        "w": 25,
+                        "h": 200
+                    }
+                }
             }
         }
     ]

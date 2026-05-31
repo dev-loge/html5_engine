@@ -1,8 +1,5 @@
 {
     "name": "Door",
-    "expectedData": {
-        "targetScene": "string"
-    },
     "components": {
         "Properties": {
             "size": {

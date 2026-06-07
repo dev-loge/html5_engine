@@ -45,6 +45,8 @@ export class Scene {
         if (gameObject) {
             gameObject.id = this.nextObjectId++;
             this.gameObjects.push(gameObject);
+            // Add to engine's global registry
+            this.engine.gameObjectRegistry.set(gameObject.id, gameObject);
             return true;
         } else {
             console.error('Failed to register game object:', gameObject);
@@ -53,6 +55,10 @@ export class Scene {
     }
 
     reset() {
+        // Clear all game objects from the registry
+        this.gameObjects.forEach(obj => {
+            this.engine.gameObjectRegistry.delete(obj.id);
+        });
         this.gameObjects = [];
         this.nextObjectId = 0;
     }

@@ -14,6 +14,7 @@ export class Engine {
         this.input = new InputManager();
         this.scenes = [];
         this.currentScene = null;
+        this.gameObjectRegistry = new Map();  // Global registry for gameObject script access
     }
 
     static getInstance() {
@@ -21,6 +22,7 @@ export class Engine {
     }
 
     async start() {
+        // Load Scenes
         var res = await fetch('./engine/engine-parts/utils/scene-exports.json');
         var { files } = await res.json();
 
@@ -34,12 +36,15 @@ export class Engine {
         });
 
         if (this.currentScene == null && this.scenes.length > 0) {
-            this.scenes[0].setupScene();
+            await this.scenes[0].setupScene();
             this.currentScene = this.scenes[0];
         } else if (this.scenes.length === 0) {
             console.error('No scenes registered to start the engine.');
         }
 
+        // Start Loop
+        await this.awaitScriptPromises();
+        this.callComponentMethod('start');
         requestAnimationFrame(this.loop.bind(this));
     }
 
@@ -53,15 +58,19 @@ export class Engine {
         }
     }
 
-    goToScene(sceneName) {
-        console.log(`Attempting to switch to scene: ${sceneName}`);
+    async goToScene(sceneName) {
+        //console.log(`Attempting to switch to scene: ${sceneName}`);
         var scene = this.scenes.find(s => s.name === sceneName);
-        console.log(`Found scene: ${scene ? scene.name : 'None'}`);
+        //console.log(`Found scene: ${scene ? scene.name : 'None'}`);
         if (scene) {
 
             this.currentScene.reset();
-            scene.setupScene();
+            await scene.setupScene();
             this.currentScene = scene;
+
+            // Call start on all components in the new scene
+            await this.awaitScriptPromises();
+            this.callComponentMethod('start');
 
             return true;
         }
@@ -80,18 +89,44 @@ export class Engine {
         this.input.update();
 
         // update game objects
-        for (var i = 0, len = this.currentScene.gameObjects.length; i < len; i++) {
-            var gameObject = this.currentScene.gameObjects[i];
-            var components = gameObject.components;
-            for (var componentKey in components) {
-                if (!Object.prototype.hasOwnProperty.call(components, componentKey)) continue;
-                components[componentKey].update();
-            }
-        }
+        this.callComponentMethod('update');
+        //console.log(this.currentScene);
 
         //=======DRAW STAGE========
         this.renderer.renderFrame(this.currentScene);
 
         requestAnimationFrame(this.loop.bind(this));
+    }
+
+    // Calls a specified method on all components of all game objects in the current scene
+    callComponentMethod(methodName, ...args) {
+        for (var i = 0, len = this.currentScene.gameObjects.length; i < len; i++) {
+            var gameObject = this.currentScene.gameObjects[i] || {};
+            var components = gameObject ? gameObject.components : null;
+            if (components) {
+                for (var componentKey in components) {
+                    if (!Object.prototype.hasOwnProperty.call(components, componentKey)) continue;
+                    if (typeof components[componentKey][methodName] !== 'function') {
+                        console.warn(`Component ${componentKey} of game object ${gameObject.name} does not have method ${methodName}`);
+                        continue;
+                    }
+                    components[componentKey][methodName](...args);
+                }
+            } else {
+                console.warn(`Game object at index ${i} is missing components or is undefined.`);
+            }
+        }
+    }
+
+    async awaitScriptPromises() {
+        var scriptPromises = [];
+        this.currentScene.gameObjects.forEach(gameObject => {
+            Object.values(gameObject.components).forEach(component => {
+                if (component && component.scriptPromise) {
+                    scriptPromises.push(component.scriptPromise);
+                }
+            });
+        });
+        if (scriptPromises.length > 0) await Promise.all(scriptPromises);
     }
 }

@@ -1,8 +1,8 @@
 import { Component } from "../engine-parts/component.js";
 
 class Hitbox extends Component {
-    constructor(gameObject, inputObject) {
-        super(gameObject, inputObject);
+    constructor(gameObject, inputObject, engine, desiredName = null) {
+        super(gameObject, inputObject, engine, desiredName);
         this.hitbox = {
             x: inputObject.x || gameObject.getPosition('x'),
             y: inputObject.y || gameObject.getPosition('y'),
@@ -14,15 +14,8 @@ class Hitbox extends Component {
             y: this.hitbox.y - gameObject.getPosition('y')
         };
 
-        this.events = inputObject.events || [];
-
-        var validTypes = ['onEnter', 'isColliding', 'onExit'];
-        if (inputObject.type && !validTypes.includes(inputObject.type)) {
-            console.warn(`Invalid Hitbox type '${inputObject.type}' in ${gameObject.objId}: expected one of ${validTypes.join(', ')}, defaulting to 'onEnter'`);
-        }
-
-        this.type = inputObject.type || 'onEnter';
-        this.currentCollisions = new Set();
+        // Map of colliding hitboxes: { gameObject -> 'onEnter' | 'isColliding' | 'onExit' }
+        this.collisions = new Map();
     }
 
     checkCollision(hitboxA, hitboxB) {
@@ -34,54 +27,52 @@ class Hitbox extends Component {
         );
     }
 
-    triggerEvents(otherObject) {
-       this.events.forEach(event => {
-            if (typeof event === 'function') {
-                event(this.gameObject, otherObject);
-            } else {
-                console.warn(`Invalid event in Hitbox component of ${this.gameObject.objId}: expected a function, got ${typeof event}`);
-            }
-        });
-    }
-
     update() {
         // Update hitbox position based on game object position and offsets
         this.hitbox.x = this.gameObject.getPosition('x') + this.offsets.x;
         this.hitbox.y = this.gameObject.getPosition('y') + this.offsets.y;
 
+        // Track currently colliding objects
+        const currentlyColliding = new Set();
+
         // Check for collisions with other game objects
-        var gameObjectHitboxList = this.engine.currentScene.gameObjects.filter(obj => obj.Hitbox && obj !== this.gameObject);
+        var gameObjectHitboxList = this.engine.currentScene.gameObjects.filter(obj => {
+            const hitboxComponent = obj.getComponentByType('hitbox');
+            return hitboxComponent && obj !== this.gameObject;
+        });
+
         gameObjectHitboxList.forEach(otherObject => {
-            if (otherObject !== this.gameObject && otherObject.Hitbox) {
-                const otherHitbox = otherObject.Hitbox.hitbox;
+            const otherHitboxComponent = otherObject.getComponentByType('hitbox');
+            if (otherHitboxComponent) {
+                const otherHitbox = otherHitboxComponent.hitbox;
                 if (this.checkCollision(this.hitbox, otherHitbox)) {
-                    // Collision detected
-                    if (this.type === 'onEnter' && this.currentCollisions.has(otherObject)) {
-                        // Already colliding, skip onEnter event
-                        return;
+                    currentlyColliding.add(otherObject);
+                    
+                    // Update collision state
+                    if (!this.collisions.has(otherObject)) {
+                        // New collision
+                        this.collisions.set(otherObject, 'onEnter');
+                    } else if (this.collisions.get(otherObject) === 'onEnter') {
+                        // Transition from onEnter to isColliding
+                        this.collisions.set(otherObject, 'isColliding');
                     }
-                    this.currentCollisions.add(otherObject);
-
-                    // Trigger events
-                    if (this.type !== 'onExit') {
-                        this.triggerEvents(otherObject);
-                    }
-
-                    
-                    
-                    
+                    // else: already isColliding, no change
                 }
+            }
+        });
 
-                // Detect if no longer colliding with objects in currentCollisions
-                this.currentCollisions.forEach(collidingObject => {
-                    if (!this.checkCollision(this.hitbox, collidingObject.Hitbox.hitbox)) {
-                        // trigger exit event before removing from currentCollisions to ensure event has access to collidingObject
-                        if (this.type === 'onExit') {
-                            this.triggerEvents(collidingObject);
-                        }
-                        this.currentCollisions.delete(collidingObject);
-                    }
-                });
+        // Handle collisions that ended
+        this.collisions.forEach((state, otherObject) => {
+            if (!currentlyColliding.has(otherObject)) {
+                // No longer colliding
+                this.collisions.set(otherObject, 'onExit');
+            }
+        });
+
+        // Remove onExit collisions (after marking them for one frame)
+        this.collisions.forEach((state, otherObject) => {
+            if (state === 'onExit') {
+                this.collisions.delete(otherObject);
             }
         });
     }

@@ -2,38 +2,41 @@
 /*
 ==========================TODO==========================
 Priority:
- 1. Script Component (for custom behavior)
+ 1. Further develop hitboxes
 
-
- 2. Further develop hitboxes
-
-   - Figure our how to configure event functions. (Maybe from a script component?)
-
-   - Multiple hitboxes per object
+   - Multiple hitboxes per object (Maybe done, requires testing)
 
    - Add tags to hitboxes for more specific collision handling
 
 
- 3. Physics Component 
+ 2. Physics Component 
   
    - rather than have simulation logic live in this component, run a physics simulation in the engine loop (or in seperate sim)
      and have the components read/write to it 
      
  
- 4. Sprite Component (rendering images instead of simple shapes)
-
-   - Asset management system for loading and managing sprites
+ 3. Sprites (rendering images instead of simple shapes)
 
    - Further develop Renderer to support this (and custom drawing functions in general)
 
+   - Sprite component for game objects
 
- 5. Animation system (frame-based animations, tweening, etc.)
+   - Scene backgrounds
+
+
+ 4. Animation system (frame-based animations, tweening, etc.)
 
  
- 6. Scene management (scene transitions)
+ 5. Scene management (scene transitions)
 
 
- 7. Audio management (playing sounds, music, etc.)
+ 6. Audio management (playing sounds, music, etc.)
+
+    - Audio Component for game objects
+
+    - Background music support in Scene
+
+    - AudioManager in engine for handling audio playback, volume control, etc.
 
 
  8. WebGL rendering (shaders, textures, sprites, etc.)
@@ -45,10 +48,8 @@ Priority:
 
 
  =========================BUGS============================
-  - Inputs not clearing from keyRelease, causing player to keep moving after key is released sometimes
 
 
 =========================OPTIMIZATIONS========================
-  - exports folder in engine directory to store file exports accross src
-    (maybe make export files jsons for easier editing & clarity)
+
 */

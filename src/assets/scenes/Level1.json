@@ -6,6 +6,7 @@
             "template": "Player.json",
             "templateData": {
                 "Properties": {
+                    "type": "Properties",
                     "position": {
                         "x": 225,
                         "y": 225
@@ -18,11 +19,17 @@
             "template": "Door.json",
             "templateData": {
                 "Properties": {
+                    "type": "Properties",
                     "position": {
                         "x": 0,
                         "y": 200
-                    },
-                    "targetScene": "Level2"
+                    }
+                },
+                "Door Controller": {
+                    "type": "Script",
+                    "data": {
+                        "targetScene": "Level2"
+                    }
                 }
             }
         },
@@ -31,6 +38,7 @@
             "template": "Obstacle.json",
             "templateData": {
                 "Properties": {
+                    "type": "Properties",
                     "position": {
                         "x": 100,
                         "y": 150

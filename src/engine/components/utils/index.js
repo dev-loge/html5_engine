@@ -1,9 +1,9 @@
-import PlayerController from './../player_controller.js';
 import Properties from './../properties.js';
 import Hitbox from './../hitbox.js';
+import Script from './../script.js';
 
 // Named exports for convenience
-export { PlayerController, Properties, Hitbox };
+export { Properties, Hitbox, Script};
 
 // Component registry (map) and helpers
 const componentsMap = new Map();
@@ -27,8 +27,8 @@ function listComponents() {
 }
 
 // Register built-ins
-registerComponent('PlayerController', PlayerController);
 registerComponent('Properties', Properties);
 registerComponent('Hitbox', Hitbox);
+registerComponent('Script', Script);
 
 export { componentsMap as _componentsMap, registerComponent, unregisterComponent, getComponent, listComponents };

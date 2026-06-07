@@ -84,6 +84,8 @@ export class InputManager {
     }
 
     update() {
+        //console.log('InputManager update - keysDown:', this.keysDown, 'keysPressed:', this.keysPressed, 'keysReleased:', this.keysReleased);
+        //console.log('InputManager update - mouseButtonsDown:', this.mouseButtonsDown, 'mouseButtonsPressed:', this.mouseButtonsPressed, 'mouseButtonsReleased:', this.mouseButtonsReleased);
         // Clear single-frame events at the end of each frame
         this.keysPressed.clear();
         this.keysReleased.clear();

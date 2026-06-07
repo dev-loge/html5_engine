@@ -2,6 +2,7 @@
     "name": "Obstacle",
     "components": {
         "Properties": {
+            "type": "Properties",
             "size": {
             "w": 25,
             "h": 25
@@ -9,7 +10,7 @@
         "color": "red"
         },
         "Hitbox": {
-            "type": "onEnter",
+            "type": "Hitbox",
             "events": []
         }
     }

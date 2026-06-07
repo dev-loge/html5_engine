@@ -1,0 +1,9 @@
+public var testVar = "WAAZZAAAAPPP!!!";
+
+public function start() {
+    // runs once before game loop begins
+}
+
+public function update() {
+    // runs every frame
+}

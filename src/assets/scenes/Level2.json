@@ -1,13 +1,17 @@
 {
     "name": "Level2",
     "objects": [
-        {
+        {   
             "type": "template",
             "template": "Player.json",
             "templateData": {
-                "position": {
-                    "x": 225,
-                    "y": 225
+                "Properties": {
+                    "type": "Properties",
+                    "position": {
+                        "x": 225,
+                        "y": 225
+                    },
+                    "color": "purple"
                 }
             }
         },
@@ -15,26 +19,37 @@
             "type": "template",
             "template": "Door.json",
             "templateData": {
-                "position": {
-                    "x": 475,
-                    "y": 200
+                "Properties": {
+                    "type": "Properties",
+                    "position": {
+                        "x": 475,
+                        "y": 200
+                    }
                 },
-                "targetScene": "Level1"
+                "Door Controller": {
+                    "type": "Script",
+                    "data": {
+                        "targetScene": "Level1"
+                    }
+                }
             }
         },
         {
             "type": "template",
             "template": "Obstacle.json",
             "templateData": {
-                "position": {
-                    "x": 300,
-                    "y": 150
-                },
-                "size": {
-                    "width": 25,
-                    "height": 200
-                },
-                "color": "red"
+                "Properties": {
+                    "type": "Properties",
+                    "position": {
+                        "x": 300,
+                        "y": 150
+                    },
+                    "size": {
+                        "width": 25,
+                        "height": 200
+                    },
+                    "color": "red"
+                }
             }
         }
     ]

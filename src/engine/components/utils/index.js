@@ -1,9 +1,10 @@
 import Properties from './../properties.js';
 import Hitbox from './../hitbox.js';
 import Script from './../script.js';
+import Draw from './../draw.js';
 
 // Named exports for convenience
-export { Properties, Hitbox, Script};
+export { Properties, Hitbox, Script, Draw};
 
 // Component registry (map) and helpers
 const componentsMap = new Map();
@@ -30,5 +31,6 @@ function listComponents() {
 registerComponent('Properties', Properties);
 registerComponent('Hitbox', Hitbox);
 registerComponent('Script', Script);
+registerComponent('Draw', Draw);
 
 export { componentsMap as _componentsMap, registerComponent, unregisterComponent, getComponent, listComponents };

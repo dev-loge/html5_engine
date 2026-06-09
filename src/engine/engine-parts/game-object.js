@@ -33,7 +33,6 @@ export class GameObject {
             // Determine which component class to use
             let componentType = componentName;
             if (inputData && inputData.type) {
-                // If the component data specifies a type, capitalize and use that to look up the class
                 componentType = inputData.type.charAt(0).toUpperCase() + inputData.type.slice(1);
             }
 
@@ -44,9 +43,10 @@ export class GameObject {
             }
 
             var componentInstance = new ComponentClass(this, inputData, this.engine, componentName);
-            // Store by unique component name
+
             this.components[componentInstance.name] = componentInstance;
         });
+        this.graphicComps = componentsList.filter(comp => this.components[comp].graphic);
     }
 
     getComponentByType(type) {
@@ -59,16 +59,19 @@ export class GameObject {
         return null;
     }
 
+    getComponentsByType(type) {
+        const lowerType = type.toLowerCase();
+        return Object.values(this.components).filter(comp => comp.type === lowerType);
+    }
+
     getProperty(key) {
-        /*
-        if (!(key in this.Properties.properties)) {
-            console.warn(`Property ${key} does not exist on id ${this.id} (${this.name})`);
-            return undefined;
-        }
-        //*/
-        //console.log(this);
         const propertiesComponent = this.getComponentByType('properties');
-        return propertiesComponent ? propertiesComponent.properties[key] : undefined;
+        if (propertiesComponent && propertiesComponent.properties[key] !== undefined) {
+            return propertiesComponent.properties[key];
+        } else {
+            console.warn(`Property '${key}' not found in Properties component.`);
+            return undefined;
+        }    
     }
 
     setProperty(key, value) {
@@ -92,15 +95,6 @@ export class GameObject {
                     value = Math.max(1, Math.min(value, key === 'width' ? this.engine.canvas.width - this.getPosition('x') : this.engine.canvas.height - this.getPosition('y')));
                 }
 
-                break;
-            case 'color':
-                if (typeof value !== 'string') {
-                    console.error(`Invalid value for 'color' property: expected a string, got ${typeof value}`);
-                    return;
-                } else if (!/^#([0-9A-F]{3}){1,2}$/i.test(value) && !isValidColor(value)) {
-                    console.error(`Invalid color format for 'color' property: expected a hex code or color name, got '${value}'`);
-                    return;
-                }   
                 break;
         }
         propertiesComponent.properties[key] = value;
@@ -154,10 +148,4 @@ export class GameObject {
         // Placeholder for game object-specific update logic, to be overridden by subclasses
     }
 
-}
-
-var isValidColor = (color) => {
-    var s = new Option().style;
-    s.color = color;
-    return s.color !== '';
 }

@@ -77,7 +77,7 @@ export class Engine {
         return false;
     }
 
-    loop() {
+    async loop() {
         //=======UPDATE STAGE========
         // guard against missing scene
         if (!this.currentScene) {
@@ -89,7 +89,7 @@ export class Engine {
         this.input.update();
 
         // update game objects
-        this.callComponentMethod('update');
+        await this.callComponentMethod('update');
         //console.log(this.currentScene);
 
         //=======DRAW STAGE========
@@ -99,11 +99,13 @@ export class Engine {
     }
 
     // Calls a specified method on all components of all game objects in the current scene
-    callComponentMethod(methodName, ...args) {
+    async callComponentMethod(methodName, ...args) {
         for (var i = 0, len = this.currentScene.gameObjects.length; i < len; i++) {
             var gameObject = this.currentScene.gameObjects[i] || {};
             var components = gameObject ? gameObject.components : null;
+            if (i == 2 && !components) console.log(gameObject)
             if (components) {
+                await this.awaitScriptPromises();
                 for (var componentKey in components) {
                     if (!Object.prototype.hasOwnProperty.call(components, componentKey)) continue;
                     if (typeof components[componentKey][methodName] !== 'function') {

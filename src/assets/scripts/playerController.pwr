@@ -1,0 +1,111 @@
+
+public var speed = number;
+
+var input = Engine.input;
+var drawComp = GameObject.getComponentByType('draw');
+
+public function start() {
+    var pos = GameObject.getPosition();
+
+    GameObject.setProperty('selected', false)
+    GameObject.setProperty('destination', pos)
+}
+
+public function update() {
+    var mousePosition = input.mousePosition
+
+    var thisPosition = GameObject.getPosition();
+    var thisRadius = GameObject.getProperty('size').r;
+    var selected = GameObject.getProperty('selected');
+    var destination = GameObject.getProperty('destination');
+
+    // ====================== Input Handling ==========================
+    //select object
+    if (isInsideCircle(mousePosition.x, mousePosition.y, thisPosition.x, thisPosition.y, thisRadius)) {
+        drawComp.shapes[0].color = 'yellow';
+
+        // Left Click on Player
+        if (input.mouseButtonsDown.has('left')) {
+            GameObject.setProperty('selected', true)
+        }
+
+    } else {
+        if (selected) drawComp.shapes[0].color = 'yellow'
+        else drawComp.shapes[0].color = '#47d2fc'
+    }
+
+    //once selected, move to click location
+    if (selected) {
+        if (input.mouseButtonsDown.has('left')) {
+            GameObject.setProperty('destination', {x: mousePosition.x, y: mousePosition.y})
+        }
+    }
+
+    //unselect object
+    if (input.mouseButtonsDown.has('right')) {
+        GameObject.setProperty('selected', false)
+    }
+
+    //shoot
+    if (selected && input.isKeyPressed(' ')) {
+        var heroPos = GameObject.getPosition();
+        if (heroPos.x !== mousePosition.x && heroPos.y !== mousePosition.y) {
+            var dx = mousePosition.x - heroPos.x;
+            var dy = mousePosition.y - heroPos.y;
+            var length = Math.sqrt(dx * dx + dy * dy);
+            
+            var dirX = length != 0 ? dx / length : 0;
+            var dirY = length != 0 ? dy / length : 0;
+
+
+            Scene.createGameObject({
+                type: 'template',
+                template: 'projectile.json',
+                templateData: {
+                    Properties: {
+                        type: "Properties",
+                        position: {
+                            x: heroPos.x,
+                            y: heroPos.y
+                        }
+                    },
+                    Controller: {
+                        data: {
+                            ownerId: GameObject.id,
+                            dirX: dirX,
+                            dirY: dirY
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    // =================== Movement ==============================
+    var xDistance = destination.x - thisPosition.x;
+    var yDistance = destination.y - thisPosition.y;
+    
+    var moveX = 0;
+    var moveY = 0;
+
+    if (xDistance < 0) moveX = xDistance < speed * -1 ? speed * -1 : xDistance;
+    else moveX = xDistance > speed ? speed : xDistance;
+
+    if (yDistance < 0) moveY = yDistance < speed * -1 ? speed * -1 : yDistance;
+    else moveY = yDistance > speed ? speed : yDistance;
+
+    var newPos = {
+        x: thisPosition.x + moveX,
+        y: thisPosition.y + moveY
+    }
+
+    GameObject.setPosition(newPos.x, newPos.y)
+}
+
+function isInsideCircle(x, y, centerX, centerY, radius) {
+    // Calculate the squared distance
+    const distanceSquared = (x - centerX) ** 2 + (y - centerY) ** 2;
+    
+    // Check if it's less than the squared radius
+    return distanceSquared < radius ** 2;
+}

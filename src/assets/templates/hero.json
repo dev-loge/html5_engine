@@ -1,0 +1,29 @@
+{
+    "name": "Hero",
+    "components": {
+        "Properties": {
+            "type": "Properties",
+            "size": {
+                "r": 35
+            }
+        },
+        "Controller": {
+            "type": "Script",
+            "script": "playerController.pwr",
+            "data": {
+                "speed": 7
+            }
+        },
+        "Graphics": {
+            "type": "Draw",
+            "shapes": [
+                {
+                    "shape": "circle",
+                    "color": "#47d2fc",
+                    "fill": false,
+                    "strokeSize": 2
+                }
+            ]
+        }
+    }
+}

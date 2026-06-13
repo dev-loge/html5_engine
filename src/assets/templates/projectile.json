@@ -1,0 +1,30 @@
+{
+    "name": "projectile",
+    "components": {
+        "Properties": {
+            "type": "Properties",
+            "size": {
+                "r": 5
+            }
+        },
+        "Controller": {
+            "type": "Script",
+            "script": "projectileController.pwr",
+            "data": {
+                "speed": 20
+            }
+        },
+        "Graphics": {
+            "type": "Draw",
+            "shapes": [
+                {
+                    "shape": "circle",
+                    "size": {
+                        "r": 5
+                    },
+                    "color": "red"
+                }
+            ]
+        }
+    }
+}

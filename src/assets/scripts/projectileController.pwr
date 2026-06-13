@@ -1,0 +1,41 @@
+public var speed = number;
+
+public var ownerId = number;
+public var dirX = number;
+public var dirY = number;
+
+var owner;
+var size = GameObject.getProperty('size').r;
+var canvasSize = {
+    w: Engine.canvas.width,
+    h: Engine.canvas.height
+}
+
+public function awake() {
+    owner = Engine.gameObjectRegistry.get(ownerId);
+
+    //console.log('Projectiled awakened w/ id: ', GameObject.id)
+}
+
+public function update() {
+    // update position
+    var position = GameObject.getPosition(); // {x, y}
+    var velocity = {
+        x: dirX * speed,
+        y: dirY * speed
+    };
+
+    GameObject.setPosition(
+        position.x + velocity.x,
+        position.y + velocity.y
+    );
+
+    //destroy if out of bounds
+    if (position.x > canvasSize.w + size ||
+        position.y > canvasSize.h + size ||
+        position.x < size * -1 ||
+        position.y < size * -1) {
+            //console.log(`Projectile ${GameObject.id} destroyed`)
+            GameObject.destroy()
+        }
+}

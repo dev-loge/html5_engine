@@ -1,0 +1,49 @@
+{
+    "name": "Test Scene",
+    "objects": [
+        {
+            "name": "grid",
+            "components": {
+                "Properties": {
+                    "type": "Properties"
+                },
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+
+                    ]
+                },
+                "Grid Setup": {
+                    "type": "Script",
+                    "script": "gridSetup.pwr"
+                }
+            }
+        },
+        {
+            "type": "template",
+            "template": "hero.json",
+            "templateData": {
+                "Properties": {
+                    "type": "Properties",
+                    "position": {
+                        "x": 225,
+                        "y": 400
+                    }
+                }
+            }
+        },
+        {
+            "type": "template",
+            "template": "hero.json",
+            "templateData": {
+                "Properties": {
+                    "type": "Properties",
+                    "position": {
+                        "x": 600,
+                        "y": 550
+                    }
+                }
+            }
+        }
+    ]
+}

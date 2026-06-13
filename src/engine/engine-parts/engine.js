@@ -1,7 +1,12 @@
+//engine parts
 import { Renderer } from './render.js';
 import { InputManager } from './input.js';
 import { Scene } from './scene.js';
+import { GameObject } from "./game-object.js";
+
+//utils
 import { setEngineInstance, getEngineInstance } from './utils/engine-instance.js';
+import { fetchTemplates } from './utils/template-cache.js';
 
 export class Engine {
     constructor(canvas) {
@@ -10,16 +15,22 @@ export class Engine {
         }
         setEngineInstance(this);
         this.canvas = canvas;
+        canvas.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+        });
         this.renderer = new Renderer(canvas);
-        this.input = new InputManager();
+        this.input = new InputManager(canvas);
         this.scenes = [];
         this.currentScene = null;
         this.gameObjectRegistry = new Map();  // Global registry for gameObject script access
+        this.templateCache = {}; 
     }
 
     static getInstance() {
         return getEngineInstance();
     }
+
+    // ======================== Game Management ========================
 
     async start() {
         // Load Scenes
@@ -47,6 +58,28 @@ export class Engine {
         this.callComponentMethod('start');
         requestAnimationFrame(this.loop.bind(this));
     }
+
+    async loop() {
+        //=======UPDATE STAGE========
+        // guard against missing scene
+        if (!this.currentScene) {
+            console.warn('No scenes registered, ending loop.');
+            return;
+        }
+
+        // update game objects
+        await this.callComponentMethod('update');
+
+        //update input states
+        this.input.update();
+
+        //=======DRAW STAGE========
+        this.renderer.renderFrame(this.currentScene);
+
+        requestAnimationFrame(this.loop.bind(this));
+    }
+
+    // ======================== Scene Management ========================
 
     registerScene(scene) {
         if (scene) {
@@ -77,35 +110,39 @@ export class Engine {
         return false;
     }
 
-    async loop() {
-        //=======UPDATE STAGE========
-        // guard against missing scene
+    // ======================== GameObject Management ========================
+
+    
+
+    
+
+    // ======================== Component Management ========================
+
+    // utility to force functions to wait for promises to resolve
+    async awaitScriptPromises() {
         if (!this.currentScene) {
-            console.warn('No scenes registered, ending loop.');
-            return;
+            console.warn ('No currentScene, cannot awaitScriptPromises')
+            return false;
         }
 
-        //update input states
-        this.input.update();
-
-        // update game objects
-        await this.callComponentMethod('update');
-        //console.log(this.currentScene);
-
-        //=======DRAW STAGE========
-        this.renderer.renderFrame(this.currentScene);
-
-        requestAnimationFrame(this.loop.bind(this));
+        var scriptPromises = [];
+        this.currentScene.gameObjects.forEach(gameObject => {
+            Object.values(gameObject.components).forEach(component => {
+                if (component && component.scriptPromise) {
+                    scriptPromises.push(component.scriptPromise);
+                }
+            });
+        });
+        if (scriptPromises.length > 0) await Promise.all(scriptPromises);
     }
 
     // Calls a specified method on all components of all game objects in the current scene
     async callComponentMethod(methodName, ...args) {
+        await this.awaitScriptPromises();
         for (var i = 0, len = this.currentScene.gameObjects.length; i < len; i++) {
             var gameObject = this.currentScene.gameObjects[i] || {};
             var components = gameObject ? gameObject.components : null;
-            if (i == 2 && !components) console.log(gameObject)
             if (components) {
-                await this.awaitScriptPromises();
                 for (var componentKey in components) {
                     if (!Object.prototype.hasOwnProperty.call(components, componentKey)) continue;
                     if (typeof components[componentKey][methodName] !== 'function') {
@@ -120,15 +157,5 @@ export class Engine {
         }
     }
 
-    async awaitScriptPromises() {
-        var scriptPromises = [];
-        this.currentScene.gameObjects.forEach(gameObject => {
-            Object.values(gameObject.components).forEach(component => {
-                if (component && component.scriptPromise) {
-                    scriptPromises.push(component.scriptPromise);
-                }
-            });
-        });
-        if (scriptPromises.length > 0) await Promise.all(scriptPromises);
-    }
+    
 }

@@ -22,7 +22,9 @@ export class Renderer {
 
             // Only render "graphic" components
             for (var comp of gameObject.graphicComps) {
+                //reset lineWidth
                 ctx.lineWidth = 1;
+
                 var component = gameObject.components[comp];
                 if (component) {
                     var compPos = applyOffset(objPos, component.offset);
@@ -54,6 +56,7 @@ export class Renderer {
                             //if (gameObject.name === "Player") console.log(`Shape ${shape.shape}: `, shapePos);
                             ctx.fillStyle = shape.color;
                             ctx.strokeStyle = shape.color;
+                            ctx.lineWidth = shape.strokeSize;
                             switch(shape.shape) {
                                 case 'rectangle':
                                     if (shape.fill) 
@@ -111,5 +114,6 @@ export class Renderer {
 }
 
 var applyOffset = (pos, offset) => {
+    if (!offset) offset = {x:0, y:0};
     return {x: pos.x + offset.x, y: pos.y + offset.y};
 }

@@ -1,10 +1,14 @@
 import { getComponent } from '../components/utils/index.js';
 import { getEngineInstance } from './utils/engine-instance.js';
 
-const mergeComponentInput = (templateInput = {}, overrideInput = {}) => ({
-    ...templateInput,
-    ...overrideInput
-});
+var mergeComponentInput = (templateInput = {}, overrideInput = {}) => {
+    var merged = { ...templateInput, ...overrideInput };
+    // Deep merge data objects if both exist
+    if (templateInput.data && overrideInput.data) {
+        merged.data = { ...templateInput.data, ...overrideInput.data };
+    }
+    return merged;
+};
 
 export class GameObject {
     constructor(template, components, engine = getEngineInstance()) {
@@ -38,7 +42,7 @@ export class GameObject {
 
             var ComponentClass = getComponent(componentType);
             if (!ComponentClass) {
-                console.warn(`Unknown component: ${componentType}`);
+                console.warn(`${this.name}: Unknown component: ${componentType}`);
                 return;
             }
 
@@ -47,6 +51,11 @@ export class GameObject {
             this.components[componentInstance.name] = componentInstance;
         });
         this.graphicComps = componentsList.filter(comp => this.components[comp].graphic);
+    }
+
+    getComponentByName(name) {
+        if (!this.components[name]) console.error(`${name} component not found on ${this.name}`)
+        return this.components[name]
     }
 
     getComponentByType(type) {
@@ -60,50 +69,39 @@ export class GameObject {
     }
 
     getComponentsByType(type) {
-        const lowerType = type.toLowerCase();
+        var lowerType = type.toLowerCase();
         return Object.values(this.components).filter(comp => comp.type === lowerType);
     }
 
     getProperty(key) {
-        const propertiesComponent = this.getComponentByType('properties');
-        if (propertiesComponent && propertiesComponent.properties[key] !== undefined) {
+        var propertiesComponent = this.getComponentByType('properties');
+        if (!propertiesComponent) {
+            console.error(`${this.name} does not have a Properties component`);
+            return;
+        }
+
+        if (propertiesComponent.properties[key] !== undefined) {
             return propertiesComponent.properties[key];
         } else {
-            console.warn(`Property '${key}' not found in Properties component.`);
+            console.warn(`${this.name}: Property '${key}' not found in Properties component.`);
             return undefined;
         }    
     }
 
     setProperty(key, value) {
-        var numericProps = ['width', 'height'];
-        const propertiesComponent = this.getComponentByType('properties');
-        
+        var propertiesComponent = this.getComponentByType('properties');
         if (!propertiesComponent) {
-            console.error('GameObject does not have a Properties component');
+            console.error(`${this.name} does not have a Properties component`);
             return;
         }
 
-        switch(key) {
-            case numericProps.find(prop => prop === key):
-                if (typeof value !== 'number') {
-                    console.error(`Invalid value for '${key}' property: expected a number, got ${typeof value}`);
-                    return;
-                }
-
-                if (key === 'width' || key === 'height') {
-                    // Ensure width and height are positive and do not exceed canvas dimensions
-                    value = Math.max(1, Math.min(value, key === 'width' ? this.engine.canvas.width - this.getPosition('x') : this.engine.canvas.height - this.getPosition('y')));
-                }
-
-                break;
-        }
         propertiesComponent.properties[key] = value;
     }
 
     getPosition(axis) {
-        const propertiesComponent = this.getComponentByType('properties');
+        var propertiesComponent = this.getComponentByType('properties');
         if (!propertiesComponent) {
-            console.warn('GameObject does not have a Properties component');
+            console.error(`${this.name} does not have a Properties component`);
             return undefined;
         }
         
@@ -114,34 +112,44 @@ export class GameObject {
                 case 'y':
                     return propertiesComponent.properties.position.y;
                 default:
-                    console.warn(`Invalid axis for getPosition: ${axis}`);
+                    console.warn(`${this.name}: Invalid axis for getPosition: ${axis}`);
                     return undefined;
             }
-        } else return this.getProperty('position');
+        } else return propertiesComponent.properties.position;
     }
 
     setPosition(x, y) {
         if (typeof x !== 'number' || typeof y !== 'number') {
-            console.error(`Invalid values for setPosition: expected numbers, got ${typeof x} and ${typeof y}`);
+            console.error(`${this.name}: Invalid values for setPosition: expected numbers, got ${typeof x} and ${typeof y}`);
             return;
         }
         const propertiesComponent = this.getComponentByType('properties');
         if (!propertiesComponent) {
-            console.error('GameObject does not have a Properties component');
+            console.error(`${this.name}: does not have a Properties component`);
             return;
         }
         
-        var size = this.getProperty('size');
-        propertiesComponent.properties.position.x = Math.max(0, Math.min(x, this.engine.canvas.width - size.w));
-        propertiesComponent.properties.position.y = Math.max(0, Math.min(y, this.engine.canvas.height - size.h));
+        //var size = this.getProperty('size');
+        propertiesComponent.properties.position.x = x;
+        propertiesComponent.properties.position.y = y;
+        if (false) {
+            if (size.r) {
+                propertiesComponent.properties.position.x = Math.max(0, Math.min(x, this.engine.canvas.width - size.r));
+                propertiesComponent.properties.position.y = Math.max(0, Math.min(y, this.engine.canvas.height - size.r));
+            } else {
+                propertiesComponent.properties.position.x = Math.max(0, Math.min(x, this.engine.canvas.width - size.w));
+                propertiesComponent.properties.position.y = Math.max(0, Math.min(y, this.engine.canvas.height - size.h));
+            }
+        }
     }
     
     destroy() {
         var scene = this.engine.currentScene;
         scene.gameObjects = scene.gameObjects.filter(obj => obj !== this);
-        // Remove from global registry
-        this.engine.gameObjectRegistry.delete(this.id);
+
         // Additional cleanup if necessary (e.g. removing references to this object in other components)
+
+        this.engine.gameObjectRegistry.delete(this.id);
     }
 
     update() {

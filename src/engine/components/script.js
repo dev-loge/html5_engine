@@ -1,5 +1,6 @@
 import { Component } from "../engine-parts/component.js";
 
+//*
 async function loadScript(path, data, gameObject, engine) {
     try {
         // Fetch and preprocess script to extract public variables and functions
@@ -8,12 +9,12 @@ async function loadScript(path, data, gameObject, engine) {
         var publicExports = [];
         var publicVarTypes = {};
 
-        //console.log('Pre Processed Script:\n', scriptText)
+        //console.log(path, '| Pre Processed Script:\n', scriptText)
         
         // Inject gameObject, Scene, and Engine binding code at top of script using engine's global registry
         const gameObjectId = gameObject.id;
         scriptText = `const GameObject = window.__engine.gameObjectRegistry.get(${gameObjectId});\n` + 
-                      'const Scene = window.__engine.scene;\n' +
+                      'const Scene = window.__engine.currentScene;\n' +
                       'const Engine = window.__engine;\n' +
                       scriptText;
         
@@ -88,7 +89,7 @@ async function loadScript(path, data, gameObject, engine) {
             scriptText += `\nexport const __publicVarTypes = ${JSON.stringify(publicVarTypes)};`;
         }
     
-        //console.log('Post Processed Script:\n', scriptText)
+        //console.log(path, '| Post Processed Script:\n', scriptText)
         
         // Create blob URL for the processed script
         var blob = new Blob([scriptText], { type: 'application/javascript' });
@@ -104,7 +105,7 @@ async function loadScript(path, data, gameObject, engine) {
         console.error('Failed to load script: ',e);
     }
 }
-
+//*/
 class Script extends Component {
     constructor(gameObject, inputObject, engine, desiredName = null) {
         super (gameObject, inputObject, engine, desiredName);
@@ -114,8 +115,9 @@ class Script extends Component {
                 if (module) {
                     // Bind all module exports to this script instance
                     this.scriptModule = module;
+
                     Object.assign(this, module);
-                    
+                    //if (inputObject.data) Object.assign(this, inputObject.data);
                     //console.log(this.gameObject);
                 }
             })

@@ -1,5 +1,7 @@
 export class InputManager {
-    constructor() {
+    constructor(canvas) {
+        this.engine = canvas;
+
         // Keyboard state
         this.keysDown = new Set();
         this.keysPressed = new Set();
@@ -40,7 +42,17 @@ export class InputManager {
         });
 
         window.addEventListener('mousemove', (event) => {
-            this.mousePosition = { x: event.clientX, y: event.clientY };
+            var rect = canvas.getBoundingClientRect();
+            
+            // Calculate the raw relative coordinates
+            var relativeX = event.clientX - rect.left;
+            var relativeY = event.clientY - rect.top;
+            
+            // Scale coordinates back to the internal resolution of the canvas
+            var canvasX = relativeX * (canvas.width / rect.width);
+            var canvasY = relativeY * (canvas.height / rect.height);
+            
+            this.mousePosition = {x: canvasX, y: canvasY}
         });
     }
 

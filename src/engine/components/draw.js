@@ -25,6 +25,7 @@ class shape {
 
         this.color = isValidColor(shapeData.color) ? shapeData.color : 'black';
         this.fill = shapeData.fill !== undefined ? shapeData.fill : true;
+        this.strokeSize = shapeData.strokeSize || 1;
         this.offset = isValidCoords(shapeData.offset, false) ? shapeData.offset : {x: 0, y: 0};
     }
 }

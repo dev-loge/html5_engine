@@ -2,10 +2,10 @@
 public var speed = number;
 
 var input = Engine.input;
-var drawComp = GameObject.getComponentByType('draw');
+var drawComp = GameObject.getComponentByName('Graphics');
 
 public function start() {
-    var pos = GameObject.getPosition();
+    var pos = GameObject.position;
 
     GameObject.setProperty('selected', false)
     GameObject.setProperty('destination', pos)
@@ -14,10 +14,10 @@ public function start() {
 public function update() {
     var mousePosition = input.mousePosition
 
-    var thisPosition = GameObject.getPosition();
-    var thisRadius = GameObject.getProperty('size').r;
-    var selected = GameObject.getProperty('selected');
-    var destination = GameObject.getProperty('destination');
+    var thisPosition = GameObject.position;
+    var thisRadius = GameObject.size.r;
+    var selected = GameObject.selected || false;
+    var destination = GameObject.destination || {x:thisPosition.x, y:thisPosition.y};
 
     // ====================== Input Handling ==========================
     //select object
@@ -48,10 +48,9 @@ public function update() {
 
     //shoot
     if (selected && input.isKeyPressed(' ')) {
-        var heroPos = GameObject.getPosition();
-        if (heroPos.x !== mousePosition.x && heroPos.y !== mousePosition.y) {
-            var dx = mousePosition.x - heroPos.x;
-            var dy = mousePosition.y - heroPos.y;
+        if (thisPosition.x !== mousePosition.x && thisPosition.y !== mousePosition.y) {
+            var dx = mousePosition.x - thisPosition.x;
+            var dy = mousePosition.y - thisPosition.y;
             var length = Math.sqrt(dx * dx + dy * dy);
             
             var dirX = length != 0 ? dx / length : 0;
@@ -61,14 +60,11 @@ public function update() {
             Scene.createGameObject({
                 type: 'template',
                 template: 'projectile.json',
+                position: {
+                    x: thisPosition.x,
+                    y: thisPosition.y
+                },
                 templateData: {
-                    Properties: {
-                        type: "Properties",
-                        position: {
-                            x: heroPos.x,
-                            y: heroPos.y
-                        }
-                    },
                     Controller: {
                         data: {
                             ownerId: GameObject.id,
@@ -99,7 +95,7 @@ public function update() {
         y: thisPosition.y + moveY
     }
 
-    GameObject.setPosition(newPos.x, newPos.y)
+    GameObject.setProperty('position', {x: newPos.x, y: newPos.y})
 }
 
 function isInsideCircle(x, y, centerX, centerY, radius) {

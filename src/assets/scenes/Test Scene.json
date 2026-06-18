@@ -4,9 +4,6 @@
         {
             "name": "grid",
             "components": {
-                "Properties": {
-                    "type": "Properties"
-                },
                 "Draw": {
                     "type": "Draw",
                     "shapes": [
@@ -22,27 +19,17 @@
         {
             "type": "template",
             "template": "hero.json",
-            "templateData": {
-                "Properties": {
-                    "type": "Properties",
-                    "position": {
-                        "x": 225,
-                        "y": 400
-                    }
-                }
+            "position": {
+                "x": 225,
+                "y": 400
             }
         },
         {
             "type": "template",
             "template": "hero.json",
-            "templateData": {
-                "Properties": {
-                    "type": "Properties",
-                    "position": {
-                        "x": 600,
-                        "y": 550
-                    }
-                }
+            "position": {
+                "x": 600,
+                "y": 550
             }
         }
     ]

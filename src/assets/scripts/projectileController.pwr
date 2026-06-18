@@ -5,7 +5,7 @@ public var dirX = number;
 public var dirY = number;
 
 var owner;
-var size = GameObject.getProperty('size').r;
+var size = GameObject.size.r;
 var canvasSize = {
     w: Engine.canvas.width,
     h: Engine.canvas.height
@@ -19,15 +19,17 @@ public function awake() {
 
 public function update() {
     // update position
-    var position = GameObject.getPosition(); // {x, y}
+    var position = GameObject.position; // {x, y}
     var velocity = {
         x: dirX * speed,
         y: dirY * speed
     };
 
-    GameObject.setPosition(
-        position.x + velocity.x,
-        position.y + velocity.y
+    GameObject.setProperty('position',
+        {
+            x: position.x + velocity.x,
+            y: position.y + velocity.y
+        }
     );
 
     //destroy if out of bounds

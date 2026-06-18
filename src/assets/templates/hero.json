@@ -1,12 +1,9 @@
 {
     "name": "Hero",
+    "size": {
+        "r": 35
+    },
     "components": {
-        "Properties": {
-            "type": "Properties",
-            "size": {
-                "r": 35
-            }
-        },
         "Controller": {
             "type": "Script",
             "script": "playerController.pwr",

@@ -2,7 +2,7 @@
 var cHeight = Engine.canvas.height;
 var cWidth = Engine.canvas.width;
 
-var drawComp = GameObject.getComponentByType('draw');
+var drawComp = GameObject.getComponentByName('Draw');
 
 public function start() {
     //console.log('gridSetup.pwr start function');

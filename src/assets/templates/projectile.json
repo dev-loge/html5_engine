@@ -1,12 +1,9 @@
 {
     "name": "projectile",
+    "size": {
+        "r": 5
+    },
     "components": {
-        "Properties": {
-            "type": "Properties",
-            "size": {
-                "r": 5
-            }
-        },
         "Controller": {
             "type": "Script",
             "script": "projectileController.pwr",

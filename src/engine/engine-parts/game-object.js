@@ -1,5 +1,4 @@
 import { getComponent } from '../components/utils/index.js';
-import { getEngineInstance } from './utils/engine-instance.js';
 
 var mergeComponentInput = (templateInput = {}, overrideInput = {}) => {
     var merged = { ...templateInput, ...overrideInput };
@@ -11,14 +10,20 @@ var mergeComponentInput = (templateInput = {}, overrideInput = {}) => {
 };
 
 export class GameObject {
-    constructor(template, components, engine = getEngineInstance()) {
+    constructor(template, components, engine) {
         this.engine = engine;
-        this.name = template.name || `GameObject_${Date.now()}`;
 
-        // Ensure Properties component always exists
-        template.components = template.components || {};
-        if (!template.components.Properties && !(components && components.Properties)) {
-            template.components.Properties = {};
+        for (var key of Object.keys(template)) {
+            if (key !== 'components') {
+                var defaultVal = 0;
+                switch (key) {
+                    case 'name':
+                        defaultVal = `GameObject_${Date.now()}`
+                    case 'position': 
+                        defaultVal = {x:0, y:0}
+                }
+                this[key] = template[key] || defaultVal;
+            }
         }
 
         var templateComponentNames = template.components ? Object.keys(template.components) : [];
@@ -53,96 +58,7 @@ export class GameObject {
         this.graphicComps = componentsList.filter(comp => this.components[comp].graphic);
     }
 
-    getComponentByName(name) {
-        if (!this.components[name]) console.error(`${name} component not found on ${this.name}`)
-        return this.components[name]
-    }
-
-    getComponentByType(type) {
-        const lowerType = type.toLowerCase();
-        for (let componentName in this.components) {
-            if (this.components[componentName].type === lowerType) {
-                return this.components[componentName];
-            }
-        }
-        return null;
-    }
-
-    getComponentsByType(type) {
-        var lowerType = type.toLowerCase();
-        return Object.values(this.components).filter(comp => comp.type === lowerType);
-    }
-
-    getProperty(key) {
-        var propertiesComponent = this.getComponentByType('properties');
-        if (!propertiesComponent) {
-            console.error(`${this.name} does not have a Properties component`);
-            return;
-        }
-
-        if (propertiesComponent.properties[key] !== undefined) {
-            return propertiesComponent.properties[key];
-        } else {
-            console.warn(`${this.name}: Property '${key}' not found in Properties component.`);
-            return undefined;
-        }    
-    }
-
-    setProperty(key, value) {
-        var propertiesComponent = this.getComponentByType('properties');
-        if (!propertiesComponent) {
-            console.error(`${this.name} does not have a Properties component`);
-            return;
-        }
-
-        propertiesComponent.properties[key] = value;
-    }
-
-    getPosition(axis) {
-        var propertiesComponent = this.getComponentByType('properties');
-        if (!propertiesComponent) {
-            console.error(`${this.name} does not have a Properties component`);
-            return undefined;
-        }
-        
-        if (axis) {
-            switch(axis) {
-                case 'x':
-                    return propertiesComponent.properties.position.x;
-                case 'y':
-                    return propertiesComponent.properties.position.y;
-                default:
-                    console.warn(`${this.name}: Invalid axis for getPosition: ${axis}`);
-                    return undefined;
-            }
-        } else return propertiesComponent.properties.position;
-    }
-
-    setPosition(x, y) {
-        if (typeof x !== 'number' || typeof y !== 'number') {
-            console.error(`${this.name}: Invalid values for setPosition: expected numbers, got ${typeof x} and ${typeof y}`);
-            return;
-        }
-        const propertiesComponent = this.getComponentByType('properties');
-        if (!propertiesComponent) {
-            console.error(`${this.name}: does not have a Properties component`);
-            return;
-        }
-        
-        //var size = this.getProperty('size');
-        propertiesComponent.properties.position.x = x;
-        propertiesComponent.properties.position.y = y;
-        if (false) {
-            if (size.r) {
-                propertiesComponent.properties.position.x = Math.max(0, Math.min(x, this.engine.canvas.width - size.r));
-                propertiesComponent.properties.position.y = Math.max(0, Math.min(y, this.engine.canvas.height - size.r));
-            } else {
-                propertiesComponent.properties.position.x = Math.max(0, Math.min(x, this.engine.canvas.width - size.w));
-                propertiesComponent.properties.position.y = Math.max(0, Math.min(y, this.engine.canvas.height - size.h));
-            }
-        }
-    }
-    
+    // ======================== Manage This ========================
     destroy() {
         var scene = this.engine.currentScene;
         scene.gameObjects = scene.gameObjects.filter(obj => obj !== this);
@@ -152,8 +68,64 @@ export class GameObject {
         this.engine.gameObjectRegistry.delete(this.id);
     }
 
-    update() {
-        // Placeholder for game object-specific update logic, to be overridden by subclasses
+    setProperty(key, value) {
+        if (key in this) {
+            var keyType = typeof this[key];
+            var valueType = typeof value;
+            if (keyType !== valueType) {
+                console.warn(`Cannot set property ${key} to ${value}: expected ${keyType}`)
+                return false;
+            }
+        }
+
+        //special property conditions
+        var validated = false;
+        switch(key) {
+            case 'position': 
+                if ('x' in value && 'y' in value) {
+                    if (typeof value.x !== 'number' || typeof value.y !== 'number') {
+                        console.error(`${this.name}: Invalid values for position: expected numbers, got ${typeof value.x} and ${typeof value.y}`);
+                        return false;
+                    } else {
+                        validated = true;
+                    }
+                }
+                break;
+            default:
+                validated = true;
+        }
+
+        if (validated) this[key] = value
+        return true;
     }
 
+    // ======================== Manage Components ========================
+    callComponentMethod(methodName, ...args) {
+        //this.engine.awaitScriptPromises()
+        var components = this.components;
+        if (components) {
+            for (var componentKey in components) {
+                if (!Object.prototype.hasOwnProperty.call(components, componentKey)) continue;
+                if (typeof components[componentKey][methodName] !== 'function') {
+                    //console.warn(`Component ${componentKey} of game object ${this.name} does not have method ${methodName}`);
+                    continue;
+                }
+                components[componentKey][methodName](...args);
+            }
+        } else {
+            console.warn(`${this} is missing components.`);
+        }
+    }
+
+    // returns a single component
+    getComponentByName(name) {
+        if (!this.components[name]) console.error(`${name} component not found on ${this.name}`)
+        return this.components[name]
+    }
+
+    // returns an array of components
+    getComponentsByType(type) {
+        var lowerType = type.toLowerCase();
+        return Object.values(this.components).filter(comp => comp.type === lowerType);
+    }
 }

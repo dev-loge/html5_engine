@@ -1,9 +1,8 @@
 import { GameObject } from "./game-object.js";
-import { getEngineInstance } from './utils/engine-instance.js';
 import { fetchTemplates } from './utils/template-cache.js';
 
 export class Scene {
-    constructor(name, sceneData, gameData, engine = getEngineInstance()) {
+    constructor(name, sceneData, gameData, engine) {
         this.engine = engine;
         this.name = name;
         this.data = sceneData;
@@ -23,6 +22,11 @@ export class Scene {
         await this.createGameObject(this.data.objects)
     }
 
+    async fetchTemplate(template) {
+        var res = await fetch(`./assets/templates/${template}`);
+        return await res.json();
+    }
+
     reset() {
         // Clear all game objects from the registry
         this.gameObjects.forEach(obj => {
@@ -33,11 +37,6 @@ export class Scene {
     }
 
     // ======================== GameObject Management ========================
-
-    async fetchTemplate(template) {
-        var res = await fetch(`./assets/templates/${template}`);
-        return await res.json();
-    }
 
     async createGameObject(input) {
         var objects = Array.isArray(input) ? input : [input];
@@ -56,6 +55,7 @@ export class Scene {
 
         // Build objects
         var results = objects.map(objData => {
+            //console.log('createGameObject', objData.name)
             if (objData.type === 'template') {
                 var template = this.templateCache[objData.template];
                 if (!template) {
@@ -69,8 +69,6 @@ export class Scene {
                     template.name ||
                     `GameObject_${Date.now()}`;
 
-                
-                // Merge components
                 // Merge components with deep-merge for data objects
                 for (var comp in objData.templateData) {
                     var templateComp = template.components[comp] || {};
@@ -85,13 +83,13 @@ export class Scene {
                     }
                     inputData.components[comp] = merged;
                 }
-
+                inputData.position = objData.position || {x:0, y:0};
                 return new GameObject(inputData, undefined, this.engine);
 
             } else {
                 // Custom object
-                if (!objData.name) {
-                    objData.name = `GameObject_${Date.now()}`;
+                if (!objData.position) {
+                    objData.position = {x:0, y:0};
                 }
 
                 return new GameObject(objData, undefined, this.engine);
@@ -102,22 +100,7 @@ export class Scene {
         valid.forEach(obj => this.registerGameObject(obj));
 
         // call Awake methods on components
-        for (var obj of valid) {
-            await this.engine.awaitScriptPromises()
-            for (var compKey in obj.components) {
-                if (!Object.prototype.hasOwnProperty.call(obj.components, compKey)) continue;
-                var component = obj.components[compKey];
-
-                if (component.awake !== undefined) {
-                    if (typeof component.awake !== 'function'){
-                        console.warn(`Invalid type for ${obj.name}: ${typeof component.awake}, expected 'function'`)
-                        continue;
-                    }
-
-                    component.awake()
-                } 
-            }
-        }
+        this.callComponentMethod('awake');
 
         return Array.isArray(input) ? valid : valid[0] || null;
     }
@@ -132,6 +115,12 @@ export class Scene {
         } else {
             console.error('Failed to register game object:', gameObject);
             return false;
+        }
+    }
+
+    callComponentMethod(methodName, ...args) {
+        for (var i = 0, len = this.gameObjects.length; i < len; i++) {
+            if (this.gameObjects[i]) this.gameObjects[i].callComponentMethod(methodName, ...args);
         }
     }
 }

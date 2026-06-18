@@ -1,8 +1,7 @@
 import { Component } from "../engine-parts/component.js";
-import { getEngineInstance } from "../engine-parts/utils/engine-instance.js";
 
 class shape {
-    constructor(shapeData, index, defaultSize) {
+    constructor(shapeData, index, defaultSize, engine) {
         this.shape = shapeData.shape || 'rectangle';
         
         // Check for correct size properties
@@ -26,7 +25,7 @@ class shape {
         this.color = isValidColor(shapeData.color) ? shapeData.color : 'black';
         this.fill = shapeData.fill !== undefined ? shapeData.fill : true;
         this.strokeSize = shapeData.strokeSize || 1;
-        this.offset = isValidCoords(shapeData.offset, false) ? shapeData.offset : {x: 0, y: 0};
+        this.offset = isValidCoords(shapeData.offset, false, engine) ? shapeData.offset : {x: 0, y: 0};
     }
 }
 
@@ -34,9 +33,9 @@ export class Draw extends Component {
     constructor(gameObject, inputObject, engine, desiredName = null) {
         super(gameObject, inputObject, engine, desiredName);
 
-        var defaultSize = gameObject.getProperty('size');
+        var defaultSize = gameObject.size;
 
-        this.shapes = inputObject.shapes.map((shapeData, index) => new shape(shapeData, index, defaultSize)) || [new shape({
+        this.shapes = inputObject.shapes.map((shapeData, index) => new shape(shapeData, index, defaultSize, engine)) || [new shape({
                                                                                                                 shape: 'rectangle', 
                                                                                                                 size: {w: 0, h: 0}, 
                                                                                                                 color: 'black',
@@ -54,8 +53,7 @@ var isValidColor = (color) => {
     return s.color !== '';
 }
 
-var isValidCoords = (coords, clamp) => {
-    var engine = getEngineInstance();
+var isValidCoords = (coords, clamp, engine) => {
     if (typeof coords !== 'object' || coords.x === undefined || coords.y === undefined) {
         return false;
     }

@@ -5,15 +5,10 @@ import { Scene } from './scene.js';
 import { GameObject } from "./game-object.js";
 
 //utils
-import { setEngineInstance, getEngineInstance } from './utils/engine-instance.js';
 import { fetchTemplates } from './utils/template-cache.js';
 
 export class Engine {
     constructor(canvas) {
-        if (getEngineInstance()) {
-            console.warn('Engine instance already exists. Reusing the existing instance is recommended.');
-        }
-        setEngineInstance(this);
         this.canvas = canvas;
         canvas.addEventListener('contextmenu', (event) => {
             event.preventDefault();
@@ -24,10 +19,6 @@ export class Engine {
         this.currentScene = null;
         this.gameObjectRegistry = new Map();  // Global registry for gameObject script access
         this.templateCache = {}; 
-    }
-
-    static getInstance() {
-        return getEngineInstance();
     }
 
     // ======================== Game Management ========================
@@ -55,7 +46,7 @@ export class Engine {
 
         // Start Loop
         await this.awaitScriptPromises();
-        this.callComponentMethod('start');
+        this.currentScene.callComponentMethod('start');
         requestAnimationFrame(this.loop.bind(this));
     }
 
@@ -68,7 +59,7 @@ export class Engine {
         }
 
         // update game objects
-        await this.callComponentMethod('update');
+        this.currentScene.callComponentMethod('update');
 
         //update input states
         this.input.update();
@@ -135,27 +126,4 @@ export class Engine {
         });
         if (scriptPromises.length > 0) await Promise.all(scriptPromises);
     }
-
-    // Calls a specified method on all components of all game objects in the current scene
-    async callComponentMethod(methodName, ...args) {
-        await this.awaitScriptPromises();
-        for (var i = 0, len = this.currentScene.gameObjects.length; i < len; i++) {
-            var gameObject = this.currentScene.gameObjects[i] || {};
-            var components = gameObject ? gameObject.components : null;
-            if (components) {
-                for (var componentKey in components) {
-                    if (!Object.prototype.hasOwnProperty.call(components, componentKey)) continue;
-                    if (typeof components[componentKey][methodName] !== 'function') {
-                        console.warn(`Component ${componentKey} of game object ${gameObject.name} does not have method ${methodName}`);
-                        continue;
-                    }
-                    components[componentKey][methodName](...args);
-                }
-            } else {
-                console.warn(`Game object at index ${i} is missing components or is undefined.`);
-            }
-        }
-    }
-
-    
 }

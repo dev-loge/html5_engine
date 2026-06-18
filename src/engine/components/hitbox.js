@@ -5,7 +5,7 @@ class Hitbox extends Component {
         super(gameObject, inputObject, engine, desiredName);
 
         this.shape = inputObject.shape ? inputObject.shape : 'rectangle';
-        this.position = gameObject.getPosition();
+        this.position = gameObject.position;
         this.offset = isValidCoords(inputObject.offset, this.engine) ? inputObject.offset : {x: 0, y: 0};
         this.tags = inputObject.tags || [];
         
@@ -16,7 +16,7 @@ class Hitbox extends Component {
             ['rectangle', ['w', 'h']],
             ['circle', ['r']],
         ]).get(this.shape);
-        var defaultSize = gameObject.getProperty('size');
+        var defaultSize = gameObject.size;
 
         // if game object has a size property at all and it matches the expected props, default to those
         if (defaultSize && expectedSizeProps.every(prop => defaultSize[prop] !== undefined)) inputObject.size = inputObject.size || defaultSize;
@@ -96,7 +96,7 @@ class Hitbox extends Component {
 
     update() {
         // Update hitbox position based on game object position and offsets
-        this.position = this.gameObject.getPosition();
+        this.position = this.gameObject.position;
 
         // Track currently colliding objects
         var currentlyColliding = new Set();

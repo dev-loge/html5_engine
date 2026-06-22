@@ -1,3 +1,5 @@
+import Vector2 from '../math/vector2.js';
+
 export class InputManager {
     constructor(canvas) {
         this.engine = canvas;
@@ -11,7 +13,7 @@ export class InputManager {
         this.mouseButtonsDown = new Set();
         this.mouseButtonsPressed = new Set();
         this.mouseButtonsReleased = new Set();
-        this.mousePosition = { x: 0, y: 0 };
+        this.mousePosition = new Vector2(0, 0);
 
         // Setup keyboard listeners
         window.addEventListener('keydown', (event) => {
@@ -52,7 +54,7 @@ export class InputManager {
             var canvasX = relativeX * (canvas.width / rect.width);
             var canvasY = relativeY * (canvas.height / rect.height);
             
-            this.mousePosition = {x: canvasX, y: canvasY}
+            this.mousePosition = new Vector2(canvasX, canvasY);
         });
     }
 
@@ -92,7 +94,7 @@ export class InputManager {
     }
 
     getMousePosition() {
-        return { ...this.mousePosition };
+        return new Vector2(this.mousePosition.x, this.mousePosition.y);
     }
 
     update() {

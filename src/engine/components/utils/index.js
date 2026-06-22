@@ -6,7 +6,7 @@ import Draw from './../draw.js';
 export {Hitbox, Script, Draw};
 
 // Component registry (map) and helpers
-const componentsMap = new Map();
+var componentsMap = new Map();
 
 function registerComponent(name, componentClass) {
     if (!name || !componentClass) return false;

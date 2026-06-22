@@ -1,17 +1,33 @@
 import { Component } from "../engine-parts/component.js";
+import Vector2 from '../math/vector2.js';
 
 class Hitbox extends Component {
     constructor(gameObject, inputObject, engine, desiredName = null) {
         super(gameObject, inputObject, engine, desiredName);
-
-        this.shape = inputObject.shape ? inputObject.shape : 'rectangle';
-        this.position = gameObject.position;
-        this.offset = isValidCoords(inputObject.offset, this.engine) ? inputObject.offset : {x: 0, y: 0};
-        this.tags = inputObject.tags || [];
-        
         this.graphic = false; // for debugging: hitboxes will be rendered as green rectangles (can be turned off in the future)
+        
+        this.position = gameObject.position;
+        this.tags = inputObject.tags || [];
+        this.preferredCollisions = inputObject.preferredCollisions || ['onEnter', 'isColliding', 'onExit'];
+        
+        var hitboxOffset = inputObject.offset && inputObject.offset.isValidCoords(engine.canvas) ? inputObject.offset : {x: 0, y: 0};
+        this.offset = new Vector2(hitboxOffset.x || 0, hitboxOffset.y || 0);
 
         // Check for correct size properties
+        this.shape = inputObject.shape ? inputObject.shape : 'default';
+        if (this.shape === 'default') {
+            switch(true) {
+                case 'w' in gameObject.size && 'h' in gameObject.size:
+                    this.shape = 'rectangle';
+                    break;
+                case 'r' in gameObject.size:
+                    this.shape = 'circle';
+                    break;
+                default:
+                    console.error(`Unknown size properties for hitbox ${desiredName}`);
+            }
+        }
+
         var expectedSizeProps = new Map([
             ['rectangle', ['w', 'h']],
             ['circle', ['r']],
@@ -20,15 +36,41 @@ class Hitbox extends Component {
 
         // if game object has a size property at all and it matches the expected props, default to those
         if (defaultSize && expectedSizeProps.every(prop => defaultSize[prop] !== undefined)) inputObject.size = inputObject.size || defaultSize;
-                    
         if (inputObject.size !== undefined) {
             var missingProps = expectedSizeProps.filter(prop => inputObject.size[prop] === undefined);
-            if (missingProps.length > 0) console.error(`Shape data at index ${index} is missing size properties: ${missingProps.join(', ')}.`);
+            if (missingProps.length > 0) console.error(`Shape data at hitbox ${desiredName} is missing size properties: ${missingProps.join(', ')}.`);
             else this.size = inputObject.size;
-        } else console.error(`Shape data at index ${index} is missing size information.`);
+        } else console.error(`Shape data at hitbox ${desiredName} is missing size information.`);
 
-        // Map of colliding hitboxes: { gameObject -> 'onEnter' | 'isColliding' | 'onExit' }
+        // Internal lifecycle state for each colliding hitbox.
+        this.collisionStates = new Map();
+        // Public collision view filtered by preferredCollisions.
         this.collisions = new Map();
+    }
+
+    getNextCollisionState(previousState, isColliding) {
+        if (isColliding) {
+            if (previousState == null || previousState === 'onExit') return 'onEnter';
+            return 'isColliding';
+        }
+
+        if (previousState === 'onExit') return null;
+        return previousState == null ? null : 'onExit';
+    }
+
+    syncCollisionState(hitbox, state) {
+        if (state == null) {
+            this.collisionStates.delete(hitbox);
+            this.collisions.delete(hitbox);
+            return;
+        }
+
+        this.collisionStates.set(hitbox, state);
+
+        var thisAllowsState = this.preferredCollisions.includes(state);
+        var targetAllowsState = hitbox.preferredCollisions.includes(state);
+        if (thisAllowsState && targetAllowsState) this.collisions.set(hitbox, state);
+        else this.collisions.delete(hitbox);
     }
 
     checkCollision(hitboxA, hitboxB) {
@@ -36,38 +78,29 @@ class Hitbox extends Component {
         if (hitboxA.shape === hitboxB.shape) {
             switch(hitboxA.shape) {
                 case 'rectangle':
-                    var x1 = hitboxA.position.x + hitboxA.offset.x;
-                    var y1 = hitboxA.position.y + hitboxA.offset.y;
+                    var topLeftA = hitboxA.position.add(hitboxA.offset);
                     var w1 = hitboxA.size.w || 0;
                     var h1 = hitboxA.size.h || 0;
                     
-                    var x2 = hitboxB.position.x + hitboxB.offset.x;
-                    var y2 = hitboxB.position.y + hitboxB.offset.y;
+                    var topLeftB = hitboxB.position.add(hitboxB.offset);
                     var w2 = hitboxB.size.w || 0;
                     var h2 = hitboxB.size.h || 0;
 
                     return (
-                        x1 < x2 + w2 &&
-                        x1 + w1 > x2 &&
-                        y1 < y2 + h2 &&
-                        y1 + h1 > y2
+                        topLeftA.x < topLeftB.x + w2 &&
+                        topLeftA.x + w1 > topLeftB.x &&
+                        topLeftA.y < topLeftB.y + h2 &&
+                        topLeftA.y + h1 > topLeftB.y
                     ); 
                 case 'circle': 
                     // detect by checking if distance between centers is less than sum of radii
-                    var centerA = {
-                        x: hitboxA.position.x + hitboxA.offset.x,
-                        y: hitboxA.position.y + hitboxA.offset.y
-                    };
-                    var centerB = {
-                        x: hitboxB.position.x + hitboxB.offset.x,
-                        y: hitboxB.position.y + hitboxB.offset.y
-                    };
+                    var centerA = hitboxA.position.add(hitboxA.offset);
+                    var centerB = hitboxB.position.add(hitboxB.offset);
                     var radiusA = hitboxA.size.r || 0;
                     var radiusB = hitboxB.size.r || 0;
 
-                    var dx = centerA.x - centerB.x;
-                    var dy = centerA.y - centerB.y;
-                    var distanceSquared = dx * dx + dy * dy;
+                    var delta = centerA.subtract(centerB);
+                    var distanceSquared = delta.x * delta.x + delta.y * delta.y;
                     var radiusSum = radiusA + radiusB;
 
                     return distanceSquared < radiusSum * radiusSum;
@@ -80,13 +113,16 @@ class Hitbox extends Component {
             var circle = hitboxA.shape === 'circle' ? hitboxA : hitboxB;
             var rect = circle === hitboxA ? hitboxB : hitboxA;
 
+            var circleCenter = circle.position.add(circle.offset);
+            var rectPos = rect.position;
+
             // 1. Find the closest point on the rectangle
-            var closestX = Math.max(rect.position.x, Math.min(circle.position.x + circle.offset.x, rect.position.x + rect.size.w));
-            var closestY = Math.max(rect.position.y, Math.min(circle.position.y + circle.offset.y, rect.position.y + rect.size.h));
+            var closestX = Math.max(rectPos.x, Math.min(circleCenter.x, rectPos.x + rect.size.w));
+            var closestY = Math.max(rectPos.y, Math.min(circleCenter.y, rectPos.y + rect.size.h));
 
             // 2. Calculate the distance between the closest point and circle center
-            var distanceX = circle.position.x + circle.offset.x - closestX;
-            var distanceY = circle.position.y + circle.offset.y - closestY;
+            var distanceX = circleCenter.x - closestX;
+            var distanceY = circleCenter.y - closestY;
             var distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
 
             // 3. Check if the distance is less than or equal to the circle's radius
@@ -108,39 +144,21 @@ class Hitbox extends Component {
             var hitbox = obj.hitbox;
             if (this.checkCollision(this, hitbox)) {
                 currentlyColliding.add(hitbox);
-                // Update collision state
-                if (!this.collisions.has(hitbox)) {
-                    // New collision
-                    this.collisions.set(hitbox, 'onEnter');
-                } else if (this.collisions.get(hitbox) === 'onEnter') {
-                    // Transition from onEnter to isColliding
-                    this.collisions.set(hitbox, 'isColliding');
-                }
+                var prevState = this.collisionStates.get(hitbox);
+                var nextState = this.getNextCollisionState(prevState, true);
+                this.syncCollisionState(hitbox, nextState);
             }
         }
 
         // Handle collisions that ended
-        for (var collision of this.collisions.keys()) {
-            var thisFrame = false;
-            if (!currentlyColliding.has(collision)) {
-                // No longer colliding
-                thisFrame = true;
-                this.collisions.set(collision, 'onExit');
-            }
-            // Remove onExit collisions (after marking them for one frame)
-            if (this.collisions.get(collision) === 'onExit' && !thisFrame) {
-                this.collisions.delete(collision);
-            }
+        for (var [collision, state] of Array.from(this.collisionStates.entries())) {
+            if (currentlyColliding.has(collision)) continue;
+
+            var nextState = this.getNextCollisionState(state, false);
+            this.syncCollisionState(collision, nextState);
         }
     }
 
-}
-
-var isValidCoords = (coords, engine) => {
-    if (typeof coords !== 'object' || coords.x === undefined || coords.y === undefined) {
-        return false;
-    }
-    return true;
 }
 
 export default Hitbox;

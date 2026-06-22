@@ -1,8 +1,15 @@
 import { Component } from "../engine-parts/component.js";
+import Raycast from '../math/raycast.js';
+import Vector2 from '../math/vector2.js';
+import Shape from '../math/shape.js';
 
 //*
 async function loadScript(path, data, gameObject, engine) {
     try {
+        while (gameObject.id == null || engine.gameObjectRegistry.get(gameObject.id) !== gameObject) {
+            await new Promise(resolve => setTimeout(resolve, 0));
+        }
+
         // Fetch and preprocess script to extract public variables and functions
         var response = await fetch(`./assets/scripts/${path}`);
         var scriptText = await response.text();
@@ -12,18 +19,22 @@ async function loadScript(path, data, gameObject, engine) {
         //console.log(path, '| Pre Processed Script:\n', scriptText)
         
         // Inject gameObject, Scene, and Engine binding code at top of script using engine's global registry
-        const gameObjectId = gameObject.id;
+        var gameObjectId = gameObject.id;
+        //console.log(`Binding GameObject with ID ${gameObjectId} to script ${path}`);
         scriptText = `const GameObject = window.__engine.gameObjectRegistry.get(${gameObjectId});\n` + 
-                      'const Scene = window.__engine.currentScene;\n' +
-                      'const Engine = window.__engine;\n' +
-                      scriptText;
+                     'const Scene = window.__engine.currentScene;\n' +
+                     'const Engine = window.__engine;\n' +
+                     `const Raycast = ${Raycast.toString()};\n` +
+                     `const Vector2 = ${Vector2.toString()};\n` +
+                     `const Shape = ${Shape.toString()};\n` +
+                     scriptText;
         
         // Replace type placeholders with actual values from data
         if (data) {
-            for (const [varName, value] of Object.entries(data)) {
+            for (var [varName, value] of Object.entries(data)) {
                 // Replace "public var varName = type" with "public var varName = value"
-                const typeRegex = new RegExp(`(public\\s+(?:var|let|const)\\s+${varName}\\s*=\\s*)(\\w+)(;)`, 'g');
-                const replacement = `$1${JSON.stringify(value)}$3`;
+                var typeRegex = new RegExp(`(public\\s+(?:var|let|const)\\s+${varName}\\s*=\\s*)(\\w+)(;)`, 'g');
+                var replacement = `$1${JSON.stringify(value)}$3`;
                 scriptText = scriptText.replace(typeRegex, replacement);
             }
         }

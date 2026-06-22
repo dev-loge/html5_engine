@@ -1,3 +1,5 @@
+import Vector2 from '../math/vector2.js';
+
 export class Renderer {
     constructor(canvas) {
         this.canvas = canvas;
@@ -27,7 +29,7 @@ export class Renderer {
 
                 var component = gameObject.components[comp];
                 if (component) {
-                    var compPos = applyOffset(objPos, component.offset);
+                    var compPos = objPos.add(component.offset || new Vector2(0, 0));
                     //if (gameObject.name === "Player") console.log('Draw Comp: ', compPos);
                     // hitbox visualization tool
                     if (component.type === 'hitbox') {
@@ -52,7 +54,7 @@ export class Renderer {
                     // render shapes (Draw comp)
                     if (component.shapes) {
                         for (var shape of component.shapes) {
-                            var shapePos = applyOffset(compPos, shape.offset);
+                            var shapePos = compPos.add(shape.offset || new Vector2(0, 0));
                             //if (gameObject.name === "Player") console.log(`Shape ${shape.shape}: `, shapePos);
                             ctx.fillStyle = shape.color;
                             ctx.strokeStyle = shape.color;
@@ -99,9 +101,4 @@ export class Renderer {
         gl.clear(gl.COLOR_BUFFER_BIT);
         //*/
     }
-}
-
-var applyOffset = (pos, offset) => {
-    if (!offset) offset = {x:0, y:0};
-    return {x: pos.x + offset.x, y: pos.y + offset.y};
 }

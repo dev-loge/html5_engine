@@ -24,6 +24,9 @@ export class Engine {
     // ======================== Game Management ========================
 
     async start() {
+        // Expose engine to global scope for script access
+        window.__engine = this;
+
         // Load Scenes
         var res = await fetch('./engine/engine-parts/utils/scene-exports.json');
         var { files } = await res.json();
@@ -38,8 +41,8 @@ export class Engine {
         });
 
         if (this.currentScene == null && this.scenes.length > 0) {
-            await this.scenes[0].setupScene();
             this.currentScene = this.scenes[0];
+            await this.scenes[0].setupScene();
         } else if (this.scenes.length === 0) {
             console.error('No scenes registered to start the engine.');
         }
@@ -59,7 +62,8 @@ export class Engine {
         }
 
         // update game objects
-        this.currentScene.callComponentMethod('update');
+        //console.log(this.gameObjectRegistry)
+        this.currentScene.update();
 
         //update input states
         this.input.update();
@@ -94,7 +98,7 @@ export class Engine {
 
             // Call start on all components in the new scene
             await this.awaitScriptPromises();
-            this.callComponentMethod('start');
+            this.currentScene.callComponentMethod('start');
 
             return true;
         }

@@ -1,5 +1,6 @@
 import { GameObject } from "./game-object.js";
 import { fetchTemplates } from './utils/template-cache.js';
+import Vector2 from '../math/vector2.js';
 
 export class Scene {
     constructor(name, sceneData, gameData, engine) {
@@ -27,6 +28,12 @@ export class Scene {
         return await res.json();
     }
 
+    update() {
+        for (var gameObject of this.gameObjects) {
+            gameObject.update();
+        }
+    }
+
     reset() {
         // Clear all game objects from the registry
         this.gameObjects.forEach(obj => {
@@ -43,7 +50,7 @@ export class Scene {
         var neededTemplates = [
             ...new Set(
                 objects
-                    .filter(o => o.type === 'template')
+                    .filter(o => 'template' in o)
                     .map(o => o.template)
                     .filter(name => !this.templateCache[name])
             )
@@ -52,11 +59,10 @@ export class Scene {
             var fetched = await fetchTemplates(neededTemplates, 4);
             Object.assign(this.templateCache, fetched);
         }
-
         // Build objects
-        var results = objects.map(objData => {
+        var results = await Promise.all(objects.map(async objData => {
             //console.log('createGameObject', objData.name)
-            if (objData.type === 'template') {
+            if ('template' in objData) {
                 var template = this.templateCache[objData.template];
                 if (!template) {
                     console.error('Failed to load template:', objData.template);
@@ -69,10 +75,12 @@ export class Scene {
                     template.name ||
                     `GameObject_${Date.now()}`;
 
+                var componentData = objData.componentData || {};
+
                 // Merge components with deep-merge for data objects
-                for (var comp in objData.templateData) {
+                for (var comp in componentData) {
                     var templateComp = template.components[comp] || {};
-                    var overrideComp = objData.templateData[comp] || {};
+                    var overrideComp = componentData[comp] || {};
                     var merged = {
                         ...templateComp,
                         ...overrideComp
@@ -83,29 +91,66 @@ export class Scene {
                     }
                     inputData.components[comp] = merged;
                 }
-                inputData.position = objData.position || {x:0, y:0};
-                return new GameObject(inputData, undefined, this.engine);
+
+                // if a child object
+                if (objData.parent) {
+                    var parent = objData.parent;
+                    inputData.parent = parent;
+                    var templateOffset = objData.position || {x:0, y:0};
+                    inputData.posOffset = new Vector2(templateOffset.x || 0, templateOffset.y || 0);
+                    inputData.position = parent.position.add(inputData.posOffset);
+                } 
+                // set starting position
+                else {
+                    var templatePos = objData.position || {x:0, y:0};
+                    inputData.position = new Vector2(templatePos.x || 0, templatePos.y || 0);
+                }
+
+                var newObj = new GameObject(inputData, undefined, this.engine);
+                return newObj;
 
             } else {
                 // Custom object
-                if (!objData.position) {
-                    objData.position = {x:0, y:0};
+                
+                // if a child object
+                if (objData.parent) {
+                    var parent = objData.parent;
+                    var customOffset = objData.position || {x:0, y:0};
+                    objData.posOffset = new Vector2(customOffset.x || 0, customOffset.y || 0);
+                    objData.position = parent.position.add(objData.posOffset);
+                } 
+                // set starting position
+                else {
+                    var customPos = objData.position || {x:0, y:0};
+                    objData.position = new Vector2(customPos.x || 0, customPos.y || 0);
                 }
 
-                return new GameObject(objData, undefined, this.engine);
+                var newObj = new GameObject(objData, undefined, this.engine);
+                return newObj;
             }
-        });
+        }));
+        //console.log(results)
+        for (var obj of results) {
+            if (!obj) continue;
+            this.registerGameObject(obj)
+        }
+
+        for (var obj of results) {
+            if (!obj) continue;
+            await obj.buildChildren(this);
+        }
 
         var valid = results.filter(Boolean);
-        valid.forEach(obj => this.registerGameObject(obj));
 
-        // call Awake methods on components
-        this.callComponentMethod('awake');
+        // Wait for scripts to load, then call awake on the newly created objects only
+        await Promise.all(valid.map(obj => obj.awaitScriptPromises()));
+        valid.forEach(obj => obj.callComponentMethod('awake'));
 
         return Array.isArray(input) ? valid : valid[0] || null;
     }
 
     registerGameObject(gameObject) {
+        //console.log(`gameObject registered: ${gameObject.name}`)
         if (gameObject) {
             gameObject.id = this.nextObjectId++;
             this.gameObjects.push(gameObject);

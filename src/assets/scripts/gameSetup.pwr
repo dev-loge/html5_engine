@@ -3,9 +3,10 @@ var cHeight = Engine.canvas.height;
 var cWidth = Engine.canvas.width;
 
 var drawComp = GameObject.getComponentByName('Draw');
+var hitbox = GameObject.getComponentByName('Hitbox');
 
 public function start() {
-    //console.log('gridSetup.pwr start function');
+    // ======================== Create Grid ==============================
     var segmentLength = cWidth/10;
 
     // Generate vertical lines
@@ -39,4 +40,8 @@ public function start() {
         })
     }
     //*/
+
+    // ======================== Create Grid ==============================
+    hitbox.size.w = cWidth;
+    hitbox.size.h = cHeight;
 }

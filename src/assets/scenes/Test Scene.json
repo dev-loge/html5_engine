@@ -2,7 +2,7 @@
     "name": "Test Scene",
     "objects": [
         {
-            "name": "grid",
+            "name": "Game Manager",
             "components": {
                 "Draw": {
                     "type": "Draw",
@@ -12,21 +12,28 @@
                 },
                 "Grid Setup": {
                     "type": "Script",
-                    "script": "gridSetup.pwr"
+                    "script": "gameSetup.pwr"
+                },
+                "Hitbox": {
+                    "type": "Hitbox",
+                    "shape": "rectangle",
+                    "size": {
+                        "w": 0,
+                        "h": 0
+                    },
+                    "preferredCollisions": ["onExit"]
                 }
             }
         },
         {
-            "type": "template",
-            "template": "hero.json",
+            "template": "heroes/projectile_hero.json",
             "position": {
                 "x": 225,
                 "y": 400
             }
         },
         {
-            "type": "template",
-            "template": "hero.json",
+            "template": "heroes/hitscan_hero.json",
             "position": {
                 "x": 600,
                 "y": 550

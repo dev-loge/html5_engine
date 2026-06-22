@@ -1,0 +1,76 @@
+
+public var maxHealth = number;
+public var speed = number;
+public var damage = number;
+public var pierce = number;
+public var range = number;
+public var aDamage = number;
+
+var drawComp = GameObject.getComponentByName('Graphics');
+
+public function awake() {
+    GameObject.setProperty('maxHealth', maxHealth)
+    GameObject.setProperty('health', maxHealth)
+    GameObject.setProperty('speed', speed)
+    
+    //console.log(GameObject)
+}
+
+public function shoot(pos, target) {
+    // =========================== logic ========================
+    var dx = target.x - pos.x;
+    var dy = target.y - pos.y;
+    var length = Math.sqrt(dx * dx + dy * dy);
+    
+    if (length === 0) return;
+    
+    var direction = {
+        x: dx / length,
+        y: dy / length
+    };
+    
+    var raycast = new Raycast(pos, direction, range, pierce + 3);
+    var hits = raycast.hits.filter(hit => {
+                                        var filArr = [GameObject.name, 'Game Manager']
+                                        return !filArr.includes(hit.gameObject.name)
+                                    })
+    console.log(hits)
+
+    for (var hit of hits) {
+        var hitObj = hit.gameObject;
+        var hitController = hitObj.getComponentByName('Controller');
+
+        if (hitController) {
+            hitController.takeDamage(damage)
+        }
+    }
+
+    // =========================== graphics ========================
+    //draw a yellow line from origin to the last hit point, or to the point of max range
+    //*
+    var endPoint = hits.length > 0
+        ? hits[hits.length - 1].point
+        : {
+            x: pos.x + direction.x * range,
+            y: pos.y + direction.y * range
+        };
+
+    var line = {
+        shape: 'line',
+        size: {
+            x1: 0,
+            y1: 0,
+            x2: endPoint.x - pos.x,
+            y2: endPoint.y - pos.y
+        },
+        color: 'yellow',
+        name: 'shot'
+    }
+    drawComp.shapes.push(line);
+    console.log(drawComp.shapes)
+    //*/
+}
+
+public function ability1(pos, dir) {
+    
+}

@@ -1,0 +1,83 @@
+
+public var maxHealth = number;
+public var speed = number;
+public var damage = number;
+public var aDamage = number;
+
+public function awake() {
+    GameObject.setProperty('maxHealth', maxHealth)
+    GameObject.setProperty('health', maxHealth)
+    GameObject.setProperty('speed', speed)
+    
+    //console.log(GameObject)
+}
+
+public function shoot(pos, dir) {
+    var dx = dir.x - pos.x;
+    var dy = dir.y - pos.y;
+    var length = Math.sqrt(dx * dx + dy * dy);
+    
+    var dirX = length != 0 ? dx / length : 0;
+    var dirY = length != 0 ? dy / length : 0;
+
+
+    Scene.createGameObject({
+        template: 'projectile.json',
+        position: {
+            x: pos.x,
+            y: pos.y
+        },
+        componentData: {
+            Controller: {
+                data: {
+                    ownerId: GameObject.id,
+                    damage: damage,
+                    dirX: dirX,
+                    dirY: dirY
+                }
+            }
+        }
+    })
+
+}
+
+public function ability1(pos, dir) {
+    var dx = dir.x - pos.x;
+    var dy = dir.y - pos.y;
+    var length = Math.sqrt(dx * dx + dy * dy);
+    
+    var dirX = length != 0 ? dx / length : 0;
+    var dirY = length != 0 ? dy / length : 0;
+
+
+    Scene.createGameObject({
+        template: 'projectile.json',
+        position: {
+            x: pos.x,
+            y: pos.y
+        },
+        componentData: {
+            Controller: {
+                data: {
+                    ownerId: GameObject.id,
+                    speed: 15,
+                    damage: aDamage,
+                    dirX: dirX,
+                    dirY: dirY
+                }
+            },
+            Graphics: {
+                "shapes": [
+                    {
+                        "shape": "circle",
+                        "size": {
+                            "r": 7
+                        },
+                        "color": "#37f03a"
+                    }
+                ]
+            }
+        }
+    })
+
+}

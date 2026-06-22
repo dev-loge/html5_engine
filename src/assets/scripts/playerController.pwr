@@ -1,8 +1,10 @@
 
-public var speed = number;
-
 var input = Engine.input;
 var drawComp = GameObject.getComponentByName('Graphics');
+var kit = GameObject.getComponentByName('Kit');
+
+var damaged = false;
+var color = drawComp.shapes[0].color;
 
 public function start() {
     var pos = GameObject.position;
@@ -12,74 +14,63 @@ public function start() {
 }
 
 public function update() {
-    var mousePosition = input.mousePosition
+    var mPos = input.mousePosition;
 
-    var thisPosition = GameObject.position;
+    var pos = GameObject.position;
     var thisRadius = GameObject.size.r;
+   
     var selected = GameObject.selected || false;
-    var destination = GameObject.destination || {x:thisPosition.x, y:thisPosition.y};
+    var destination = GameObject.destination || {x:pos.x, y:pos.y};
+    var health = GameObject.health || null;
+    
+    var speed = GameObject.speed || 0;
+    //console.log(GameObject)
 
+    //cleanup hitscan shapes
+    drawComp.shapes = drawComp.shapes.filter(shape => shape.name !== 'shot')
+    
     // ====================== Input Handling ==========================
-    //select object
-    if (isInsideCircle(mousePosition.x, mousePosition.y, thisPosition.x, thisPosition.y, thisRadius)) {
+    // select player
+    if (isInsideCircle(mPos.x, mPos.y, pos.x, pos.y, thisRadius)) {
         drawComp.shapes[0].color = 'yellow';
 
-        // Left Click on Player
         if (input.mouseButtonsDown.has('left')) {
             GameObject.setProperty('selected', true)
         }
 
     } else {
         if (selected) drawComp.shapes[0].color = 'yellow'
-        else drawComp.shapes[0].color = '#47d2fc'
+        else drawComp.shapes[0].color = color
     }
 
-    //once selected, move to click location
-    if (selected) {
-        if (input.mouseButtonsDown.has('left')) {
-            GameObject.setProperty('destination', {x: mousePosition.x, y: mousePosition.y})
-        }
-    }
-
-    //unselect object
+    // unselect player
     if (input.mouseButtonsDown.has('right')) {
         GameObject.setProperty('selected', false)
     }
 
-    //shoot
-    if (selected && input.isKeyPressed(' ')) {
-        if (thisPosition.x !== mousePosition.x && thisPosition.y !== mousePosition.y) {
-            var dx = mousePosition.x - thisPosition.x;
-            var dy = mousePosition.y - thisPosition.y;
-            var length = Math.sqrt(dx * dx + dy * dy);
-            
-            var dirX = length != 0 ? dx / length : 0;
-            var dirY = length != 0 ? dy / length : 0;
+    // control player
+    if (selected) {
+        // move to click location
+        if (input.mouseButtonsDown.has('left')) {
+            GameObject.setProperty('destination', {x: mPos.x, y: mPos.y})
+        }
 
+        // shoot
+        if (input.isKeyPressed(' ') && pos.x !== mPos.x && pos.y !== mPos.y) {
+            kit.shoot(pos, mPos)
+        }
 
-            Scene.createGameObject({
-                type: 'template',
-                template: 'projectile.json',
-                position: {
-                    x: thisPosition.x,
-                    y: thisPosition.y
-                },
-                templateData: {
-                    Controller: {
-                        data: {
-                            ownerId: GameObject.id,
-                            dirX: dirX,
-                            dirY: dirY
-                        }
-                    }
-                }
-            })
+        // ability 1
+        if (input.isKeyPressed('q') && pos.x !== mPos.x && pos.y !== mPos.y) {
+            kit.ability1(pos, mPos)
         }
     }
 
+    
+
     // =================== Movement ==============================
-    var xDistance = destination.x - thisPosition.x;
-    var yDistance = destination.y - thisPosition.y;
+    var xDistance = destination.x - pos.x;
+    var yDistance = destination.y - pos.y;
     
     var moveX = 0;
     var moveY = 0;
@@ -91,11 +82,42 @@ public function update() {
     else moveY = yDistance > speed ? speed : yDistance;
 
     var newPos = {
-        x: thisPosition.x + moveX,
-        y: thisPosition.y + moveY
-    }
+        x: pos.x + moveX,
+        y: pos.y + moveY
+    };
 
     GameObject.setProperty('position', {x: newPos.x, y: newPos.y})
+
+    // =================== Damage & Death Animations ==============================
+    var thisColor = drawComp.shapes[0].color;
+
+    if (damaged) {
+        thisColor = color;
+        damaged = false;
+    }
+
+    
+}
+
+public function takeDamage(amount) {
+    if (amount < 0) {
+        console.warn('invalid dmg amount')
+        return;
+    }
+
+    if (amount > GameObject.health) amount = GameObject.health;
+    GameObject.health -= amount;
+    
+    damaged = true;
+    drawComp.shapes[0].color = 'red';
+
+    if (GameObject.health === 0) this.die()
+
+    return GameObject.health;
+}
+
+public function die() {
+    GameObject.destroy()
 }
 
 function isInsideCircle(x, y, centerX, centerY, radius) {

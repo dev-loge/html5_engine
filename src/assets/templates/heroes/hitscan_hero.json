@@ -1,0 +1,47 @@
+{
+    "name": "Hitscan Hero",
+    "size": {
+        "r": 35
+    },
+    "components": {
+        "Controller": {
+            "type": "Script",
+            "script": "playerController.pwr"
+        },
+        "Kit": {
+            "type": "Script",
+            "script": "kits/hitscan_hero.pwr",
+            "data": {
+                "maxHealth": 250,
+                "speed": 5,
+                "damage": 35,
+                "pierce": 0,
+                "range": 500,
+                "aDamage": 70
+            }
+        },
+        "Graphics": {
+            "type": "Draw",
+            "shapes": [
+                {
+                    "shape": "circle",
+                    "color": "#ba0b51",
+                    "fill": false,
+                    "strokeSize": 2
+                }
+            ]
+        },
+        "Hitbox": {
+            "type": "Hitbox"
+        }
+    },
+    "children": [
+        {
+            "template":"health_bar.json",
+            "position": {
+                "x": -35,
+                "y": 40
+            }
+        }
+    ]
+}

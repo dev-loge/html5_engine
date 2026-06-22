@@ -1,0 +1,29 @@
+{
+    "name": "health bar",
+    "size": {
+        "w": 70,
+        "h": 10
+    },
+    "components" : {
+        "Graphics": {
+            "type": "Draw",
+            "shapes": [
+                {
+                    "shape": "rectangle",
+                    "color": "red"
+                },
+                {
+                    "shape": "rectangle",
+                    "color": "white"
+                }
+            ]
+        },
+        "Manager": {
+            "type": "Script",
+            "script": "healthBar.pwr",
+            "data": {
+                "chaseRate": 0.6
+            }
+        }
+    }
+}

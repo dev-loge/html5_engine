@@ -1,0 +1,44 @@
+
+var parent = GameObject.getParent();
+
+var graphics = GameObject.getComponentByName('Graphics');
+var whiteBar = graphics.shapes[1];
+var redBar = graphics.shapes[0];
+
+
+var maxWidth = 0;
+
+public var chaseRate = number;
+
+public function awake () {
+    maxWidth = GameObject.size.w;
+}
+
+public function update () {
+    var maxHealth = parent.maxHealth;
+    var health = parent.health;
+    var percent = health / maxHealth;
+
+    if (parent.health < 0) parent.health = 0;
+    else {
+        //handle whiteBar width
+        var whiteBarWidth = whiteBar.size.w;
+        whiteBar.size.w = percent * maxWidth;
+        
+        //handle redBar width to chase the whiteBar's at a fixed rate
+        var redBarWidth = redBar.size.w;
+        if (redBarWidth > whiteBarWidth) {
+            redBar.size.w -= chaseRate;
+
+            if (redBar.size.w < whiteBarWidth) redBar.size.w = whiteBarWidth;
+        } else redBar.size.w = whiteBarWidth;
+    }
+
+    
+    
+
+
+
+
+    if (health > 0 && health <= maxHealth) parent.health++;
+}

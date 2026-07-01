@@ -24,7 +24,7 @@ class Hitbox extends Component {
                     this.shape = 'circle';
                     break;
                 default:
-                    console.error(`Unknown size properties for hitbox ${desiredName}`);
+                    console.error(`Unknown size properties for hitbox ${desiredName} on ${gameObject.name}; ${JSON.stringify(gameObject.size)}`);
             }
         }
 
@@ -46,6 +46,7 @@ class Hitbox extends Component {
         this.collisionStates = new Map();
         // Public collision view filtered by preferredCollisions.
         this.collisions = new Map();
+        this._collisionReady = true;
     }
 
     getNextCollisionState(previousState, isColliding) {
@@ -131,6 +132,11 @@ class Hitbox extends Component {
     }
 
     update() {
+        if (!this.collisionStates || !this.collisions) {
+            this.collisionStates = new Map();
+            this.collisions = new Map();
+        }
+
         // Update hitbox position based on game object position and offsets
         this.position = this.gameObject.position;
 

@@ -19,15 +19,20 @@ class Vector2 {
 
     isValidCoords(canvas, clamp) {
         if (typeof this !== 'object' || this.x === undefined || this.y === undefined) {
-        return false;
-    }
-    if (clamp) {
-        //ensure coords are within canvas bounds
-        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
             return false;
         }
+        if (clamp) {
+            //ensure coords are within canvas bounds
+            if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                return false;
+            }
+        }
+        return true;
     }
-    return true;
+
+    isInsideCircle(center, radius) {
+        var dSquared = (this.x - center.x) ** 2 + (this.y - center.y) ** 2;
+        return dSquared <= radius ** 2;
     }
 }
 

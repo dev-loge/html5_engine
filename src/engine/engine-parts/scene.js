@@ -85,12 +85,31 @@ export class Scene {
                         ...templateComp,
                         ...overrideComp
                     };
-                    // Deep merge data objects to preserve template defaults
-                    if (templateComp.data && overrideComp.data) {
-                        merged.data = { ...templateComp.data, ...overrideComp.data };
+
+                    var componentType = (merged.type || templateComp.type || overrideComp.type || '').toLowerCase();
+                    if (componentType === 'script') {
+                        var mergedData = {};
+                        if (templateComp.data) {
+                            Object.assign(mergedData, templateComp.data);
+                        }
+                        if (overrideComp.data) {
+                            Object.assign(mergedData, overrideComp.data);
+                        }
+
+                        Object.entries(overrideComp).forEach(([key, value]) => {
+                            if (key !== 'data' && key !== 'type' && key !== 'script' && value !== undefined) {
+                                mergedData[key] = value;
+                            }
+                        });
+
+                        merged.data = mergedData;
                     }
+
                     inputData.components[comp] = merged;
                 }
+
+                //fix size inheritance for hitbox component
+                if (objData.size !== undefined) inputData.size = objData.size;
 
                 // if a child object
                 if (objData.parent) {
@@ -111,6 +130,9 @@ export class Scene {
 
             } else {
                 // Custom object
+
+                //fix size inheritance for hitbox component
+                if (objData.size !== undefined) objData.size = objData.size;
                 
                 // if a child object
                 if (objData.parent) {

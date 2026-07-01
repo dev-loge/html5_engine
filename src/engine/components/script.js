@@ -29,9 +29,22 @@ async function loadScript(path, data, gameObject, engine) {
                      `const Shape = ${Shape.toString()};\n` +
                      scriptText;
         
+        var scriptData = {};
+        if (data && typeof data === 'object') {
+            if (data.data && typeof data.data === 'object') {
+                Object.assign(scriptData, data.data);
+            }
+
+            Object.entries(data).forEach(([key, value]) => {
+                if (key !== 'data' && key !== 'script' && key !== 'type' && value !== undefined) {
+                    scriptData[key] = value;
+                }
+            });
+        }
+
         // Replace type placeholders with actual values from data
-        if (data) {
-            for (var [varName, value] of Object.entries(data)) {
+        if (scriptData && Object.keys(scriptData).length > 0) {
+            for (var [varName, value] of Object.entries(scriptData)) {
                 // Replace "public var varName = type" with "public var varName = value"
                 var typeRegex = new RegExp(`(public\\s+(?:var|let|const)\\s+${varName}\\s*=\\s*)(\\w+)(;)`, 'g');
                 var replacement = `$1${JSON.stringify(value)}$3`;
@@ -113,7 +126,7 @@ async function loadScript(path, data, gameObject, engine) {
             URL.revokeObjectURL(blobUrl);
         }
     } catch (e) {
-        console.error('Failed to load script: ',e);
+        console.error(`Failed to load script ${path}: ${e}`);
     }
 }
 //*/
@@ -121,7 +134,8 @@ class Script extends Component {
     constructor(gameObject, inputObject, engine, desiredName = null) {
         super (gameObject, inputObject, engine, desiredName);
         this.scriptName = inputObject.script;
-        this.scriptPromise = this.scriptName ? loadScript(this.scriptName, inputObject.data, gameObject, engine)
+        this.data = inputObject.data || {};
+        this.scriptPromise = this.scriptName ? loadScript(this.scriptName, inputObject, gameObject, engine)
             .then(module => {
                 if (module) {
                     // Bind all module exports to this script instance
@@ -132,7 +146,7 @@ class Script extends Component {
                     //console.log(this.gameObject);
                 }
             })
-            .catch(e => console.error('Failed to load script module: ', e))
+            .catch(e => console.error(`Failed to load script module ${this.scriptName}: ${e}`))
             : null;
         
         

@@ -97,6 +97,8 @@ export class GameObject {
     }
 
     destroy() {
+        this.callComponentMethod('destroy');
+        
         var scene = this.engine.currentScene;
         scene.gameObjects = scene.gameObjects.filter(obj => obj !== this && obj.parent !== this);
 

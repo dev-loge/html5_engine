@@ -1,0 +1,41 @@
+
+public var ownerId = number;
+public var damage = number;
+public var radius = number;
+
+var hitbox = GameObject.getComponentByName('Hitbox');
+var drawComp = GameObject.getComponentByName('Graphics');
+
+var frames = 0;
+
+public function awake () {
+    //setup
+    hitbox.size.r = radius;
+    drawComp.shapes.push({
+        shape: 'circle',
+        size: {
+            r: radius
+        },
+        color: 'red',
+        fill: false,
+        strokeSize: 1
+    })
+}
+
+public function update () {
+    frames++;
+
+    if (!hitbox || !hitbox.collisions) {
+        if (frames > 2) GameObject.destroy();
+        return;
+    }
+
+    for (var collision of hitbox.collisions) {
+        var collGameObject = collision[0].gameObject;
+        var collController = collGameObject.getComponentByName('Controller');
+
+        if (collGameObject.health && damage) collController.takeDamage(damage);
+    }
+
+    if (frames > 2) GameObject.destroy()
+}

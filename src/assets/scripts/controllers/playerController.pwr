@@ -31,22 +31,14 @@ public function update() {
     
     // ====================== Input Handling ==========================
     // select player
+    //*
     if (isInsideCircle(mPos.x, mPos.y, pos.x, pos.y, thisRadius)) {
         drawComp.shapes[0].color = 'yellow';
-
-        if (input.mouseButtonsDown.has('left')) {
-            GameObject.setProperty('selected', true)
-        }
-
     } else {
         if (selected) drawComp.shapes[0].color = 'yellow'
         else drawComp.shapes[0].color = color
     }
-
-    // unselect player
-    if (input.mouseButtonsDown.has('right')) {
-        GameObject.setProperty('selected', false)
-    }
+    //*/
 
     // control player
     if (selected) {
@@ -55,9 +47,9 @@ public function update() {
             GameObject.setProperty('destination', {x: mPos.x, y: mPos.y})
         }
 
-        // shoot
+        // primaryFire
         if (input.isKeyPressed(' ') && pos.x !== mPos.x && pos.y !== mPos.y) {
-            kit.shoot(pos, mPos)
+            kit.primaryFireShoot(pos, mPos)
         }
 
         // ability 1

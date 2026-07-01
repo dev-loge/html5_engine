@@ -1,0 +1,24 @@
+{
+    "name": "explosion",
+    "size": {
+        "r": 0
+    },
+    "components": {
+        "Controller": {
+            "type": "Script",
+            "script": "controllers/explosionController.pwr",
+            "data": {
+                "ownerId": 0,
+                "damage": 0,
+                "radius": 0
+            }
+        },
+        "Graphics": {
+            "type": "Draw",
+            "shapes": []
+        },
+        "Hitbox": {
+            "type": "Hitbox"
+        }
+    }
+}

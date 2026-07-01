@@ -10,9 +10,9 @@
 
                     ]
                 },
-                "Grid Setup": {
+                "Game Manager": {
                     "type": "Script",
-                    "script": "gameSetup.pwr"
+                    "script": "gameManager.pwr"
                 },
                 "Hitbox": {
                     "type": "Hitbox",
@@ -26,9 +26,23 @@
             }
         },
         {
-            "template": "heroes/projectile_hero.json",
+            "template": "heroes/Fire_Fellow.json",
             "position": {
                 "x": 225,
+                "y": 400
+            }
+        },
+        {
+            "template": "heroes/Fire_Fellow.json",
+            "position": {
+                "x": 500,
+                "y": 400
+            }
+        },
+        {
+            "template": "heroes/Fire_Fellow.json",
+            "position": {
+                "x": 350,
                 "y": 400
             }
         },

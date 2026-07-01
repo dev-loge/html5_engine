@@ -1,0 +1,90 @@
+
+var cHeight = Engine.canvas.height;
+var cWidth = Engine.canvas.width;
+var input = Engine.input;
+
+var drawComp = GameObject.getComponentByName('Draw');
+var hitbox = GameObject.getComponentByName('Hitbox');
+
+var heroObjs = [];
+var selectedHero = null;
+var playerCont = null;
+
+public function start() {
+// ======================== Setup ==============================
+    // boundary
+    hitbox.size.w = cWidth;
+    hitbox.size.h = cHeight;
+
+    // fetch heroes
+    heroObjs = Scene.gameObjects.filter(obj => {
+        return obj.tags ? obj.tags.includes('hero') : false;
+    });
+
+    // ======================== Create Grid ==============================
+    var segmentLength = cWidth/10;
+
+    // Generate vertical lines
+    for (var s = 0; s <= cWidth; s+= segmentLength) {
+        drawComp.shapes.push({
+            "shape": "line",
+            "size": {
+                "x1": s,
+                "y1": 0,
+                "x2": s,
+                "y2": cHeight
+            },
+            "color": "grey"
+        })
+    } 
+
+    // Generate horizontal lines
+    for (var s = 0; s <= cHeight; s+= segmentLength) {
+        drawComp.shapes.push({
+            "shape": "line",
+            "size": {
+                "x1": 0,
+                "y1": s,
+                "x2": cWidth,
+                "y2": s
+            },
+            "color": "grey"
+        })
+    }
+
+    
+}
+
+public function update () {
+    // ====================== Input Handling ==========================
+    var mPos = input.mousePosition;
+
+    if (input.mouseButtonsDown.has('left')) {
+        // are we selecting a hero?
+        var selecting = false;
+        for (var hero of heroObjs) {
+            if (mPos.isInsideCircle(hero.position, hero.size.r)) {
+                selecting = true;
+
+                //unselect current hero
+                if (selectedHero) selectedHero.setProperty('selected', false)
+
+                //select hero
+                selectedHero = hero;
+                playerCont = hero.getComponentByName('Controller');
+                hero.setProperty('selected', true)
+
+                break;
+            }
+        }
+    }
+
+    if (input.mouseButtonsDown.has('right')) {
+        //unselect hero
+        if (selectedHero) {
+            selectedHero.setProperty('selected', false);
+            selectedHero = null;
+            playerCont = null;
+        }
+    }
+}

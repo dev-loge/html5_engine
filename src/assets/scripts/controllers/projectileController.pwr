@@ -1,0 +1,91 @@
+
+public var ownerId = number;
+public var stats = object;
+public var path = object;
+public var graphics = array;
+
+var owner = {};
+var ownerKit = {};
+
+var hitbox = {};
+var drawComp = GameObject.getComponentByName('Graphics');
+
+var dir = path.dir;
+var origin = path.origin;
+
+var canvasSize = {
+    w: Engine.canvas.width,
+    h: Engine.canvas.height
+};
+
+public function awake() {
+    //establish owner
+    owner = Engine.gameObjectRegistry.get(ownerId);
+    ownerKit = owner.getComponentByName('Kit');
+
+    //establish hitbox
+    hitbox = GameObject.getComponentByName('Hitbox');
+
+    //establish graphics
+    drawComp.shapes = graphics;
+
+    //console.log(GameObject)
+}
+
+public function update() {
+    var speed = stats.speed;
+    var damage = stats.damage;
+    var range = stats.range;
+
+    // update position
+    var position = GameObject.position; // {x, y}
+    var velocity = {
+        x: dir.x * speed,
+        y: dir.y * speed
+    };
+
+    GameObject.setProperty('position',
+        {
+            x: position.x + velocity.x,
+            y: position.y + velocity.y
+        }
+    );
+    position = GameObject.position; //refresh position value after moving
+
+    //destroy at max range
+    if (Math.abs(position.x - origin.x) > range ||
+        Math.abs(position.y - origin.y) > range) {
+            GameObject.destroy();
+        }
+
+    //detect hits
+    if (!hitbox || !hitbox.collisions) return;
+
+    for (var collision of hitbox.collisions) {
+        var collGameObject = collision[0].gameObject;
+        var collType = collision[1];
+        if (collGameObject.id === ownerId) continue;
+        
+        switch(collType) {
+            case 'onEnter': // Projectile hit
+                var collController = collGameObject.getComponentByName('Controller');
+                var canTakeDamage = collGameObject.health !== undefined && collGameObject.health !== null && collController && typeof collController.takeDamage === 'function';
+
+                //ownerKit.primaryFireHit(collision)
+
+                if (canTakeDamage) {
+                    if (damage) collController.takeDamage(damage);
+
+                    stats.pierce--;
+                    if (stats.pierce < 0) GameObject.destroy()
+                }
+
+                break;
+            case 'isColliding':
+                break;
+            case 'onExit':
+                if (collGameObject.name === 'Game Manager') GameObject.destroy();
+                break;
+        }
+    }
+}

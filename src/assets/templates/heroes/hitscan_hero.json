@@ -1,12 +1,13 @@
 {
     "name": "Hitscan Hero",
+    "tags": ["hero"],
     "size": {
         "r": 35
     },
     "components": {
         "Controller": {
             "type": "Script",
-            "script": "playerController.pwr"
+            "script": "controllers/playerController.pwr"
         },
         "Kit": {
             "type": "Script",
@@ -14,8 +15,8 @@
             "data": {
                 "maxHealth": 250,
                 "speed": 5,
-                "damage": 35,
-                "pierce": 0,
+                "damage": 75,
+                "pierce": 3,
                 "range": 500,
                 "aDamage": 70
             }

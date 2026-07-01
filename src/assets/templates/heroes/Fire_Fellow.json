@@ -1,0 +1,69 @@
+{
+    "name": "Fire Fellow",
+    "tags": ["hero"],
+    "size": {
+        "r": 35
+    },
+    "components": {
+        "Controller": {
+            "type": "Script",
+            "script": "controllers/playerController.pwr"
+        },
+        "Kit": {
+            "type": "Script",
+            "script": "kits/Fire Fellow/fire_fellow_kit.pwr",
+            "data": {
+                "maxHealth": 250,
+                "speed": 5,
+                "primaryFire": {
+                    "stats": {
+                        "damage": 35,
+                        "speed": 10,
+                        "size": {
+                            "r": 5
+                        },
+                        "range": 250,
+                        "pierce": 0,
+                        "explosion": {
+                            "damage": 20,
+                            "radius": 30
+                        }
+                    },
+                    "graphics": [
+                        {
+                            "shape": "circle",
+                            "size": {
+                                "r": 5
+                            },
+                            "color": "red",
+                            "fill": true
+                        }
+                    ]
+                }
+            }
+        },
+        "Graphics": {
+            "type": "Draw",
+            "shapes": [
+                {
+                    "shape": "circle",
+                    "color": "#47d2fc",
+                    "fill": false,
+                    "strokeSize": 2
+                }
+            ]
+        },
+        "Hitbox": {
+            "type": "Hitbox"
+        }
+    },
+    "children": [
+        {
+            "template":"health_bar.json",
+            "position": {
+                "x": -35,
+                "y": 40
+            }
+        }
+    ]
+}

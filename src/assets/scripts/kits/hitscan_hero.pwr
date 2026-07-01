@@ -16,7 +16,7 @@ public function awake() {
     //console.log(GameObject)
 }
 
-public function shoot(pos, target) {
+public function primaryFireShoot(pos, target) {
     // =========================== logic ========================
     var dx = target.x - pos.x;
     var dy = target.y - pos.y;
@@ -35,6 +35,7 @@ public function shoot(pos, target) {
                                         return !filArr.includes(hit.gameObject.name)
                                     })
     console.log(hits)
+    console.log(pierce)
 
     for (var hit of hits) {
         var hitObj = hit.gameObject;
@@ -48,7 +49,7 @@ public function shoot(pos, target) {
     // =========================== graphics ========================
     //draw a yellow line from origin to the last hit point, or to the point of max range
     //*
-    var endPoint = hits.length > 0
+    var endPoint = hits.length > 0 && hits.length > pierce 
         ? hits[hits.length - 1].point
         : {
             x: pos.x + direction.x * range,
@@ -67,7 +68,7 @@ public function shoot(pos, target) {
         name: 'shot'
     }
     drawComp.shapes.push(line);
-    console.log(drawComp.shapes)
+    //console.log(drawComp.shapes)
     //*/
 }
 

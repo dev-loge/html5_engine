@@ -1,0 +1,18 @@
+
+public var ownerId = number;
+public var damage = number;
+public var radius = number;
+
+public function destroy () {
+    Scene.createGameObject({
+        template: 'combat/explosion.json',
+        position: GameObject.position,
+        componentData: {
+            Controller: {
+                ownerId: GameObject.ownerId,
+                damage: damage,
+                radius: radius
+            }
+        }
+    })
+}

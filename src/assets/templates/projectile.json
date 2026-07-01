@@ -1,27 +1,29 @@
 {
     "name": "projectile",
     "size": {
-        "r": 5
+        "r": 0
     },
     "components": {
         "Controller": {
             "type": "Script",
-            "script": "projectileController.pwr",
+            "script": "controllers/projectileController.pwr",
             "data": {
-                "speed": 20
+                "stats": {
+                    "damage": 0,
+                    "speed": 0,
+                    "range": 0,
+                    "pierce": 0
+                },
+                "path": {
+                    "origin": {"x": 0, "y": 0},
+                    "dir": {"x": 0, "y": 0}
+                },
+                "graphics": []
             }
         },
         "Graphics": {
             "type": "Draw",
-            "shapes": [
-                {
-                    "shape": "circle",
-                    "size": {
-                        "r": 5
-                    },
-                    "color": "red"
-                }
-            ]
+            "shapes": []
         },
         "Hitbox": {
             "type": "Hitbox"

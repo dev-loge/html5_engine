@@ -1,23 +1,31 @@
 
 var input = Engine.input;
+var time = Engine.time;
 var drawComp = GameObject.getComponentByName('Graphics');
 var kit = GameObject.getComponentByName('Kit');
 
-var damaged = false;
-var color = drawComp.shapes[0].color;
+public var availActions = ['primaryFire', 'ability1', 'ability2', 'ability3', 'ability4'];
+public var targeting = 'none';
 
 public function start() {
     var pos = GameObject.position;
+    var color = drawComp.shapes[0].color;
+
 
     GameObject.setProperty('selected', false)
     GameObject.setProperty('destination', pos)
+    GameObject.setProperty('movementLocked', false)
+    GameObject.setProperty('inputLocked', false)    
+    
+    GameObject.setProperty('origColor', color)
+    GameObject.setProperty('color', color)
 }
 
 public function update() {
     var mPos = input.mousePosition;
 
     var pos = GameObject.position;
-    var thisRadius = GameObject.size.r;
+    var r = GameObject.size.r;
    
     var selected = GameObject.selected || false;
     var destination = GameObject.destination || {x:pos.x, y:pos.y};
@@ -28,35 +36,64 @@ public function update() {
 
     //cleanup hitscan shapes
     drawComp.shapes = drawComp.shapes.filter(shape => shape.name !== 'shot')
+
+    drawComp.shapes[0].color = GameObject.color;
     
     // ====================== Input Handling ==========================
-    // select player
-    //*
-    if (isInsideCircle(mPos.x, mPos.y, pos.x, pos.y, thisRadius)) {
-        drawComp.shapes[0].color = 'yellow';
+    if (targeting === 'none') {
+        // select player
+        if (isInsideCircle(mPos.x, mPos.y, pos.x, pos.y, r)) {
+            GameObject.setProperty('color', 'yellow')
+        } else if (GameObject.color === 'yellow' && GameObject.color != GameObject.origColor) {
+            GameObject.setProperty('color', GameObject.origColor)
+        }
+
+        // control player
+        if (selected && !GameObject.inputLocked) {
+            // move to click location
+            if (input.mouseButtonsDown.has('left') && !GameObject.movementLocked) {
+                GameObject.setProperty('destination', {x: mPos.x, y: mPos.y})
+            }
+
+            // primaryFire
+            if (input.isKeyDown(' ') && pos.x !== mPos.x && pos.y !== mPos.y && availActions.includes('primaryFire')) {
+                kit.primaryFireShoot(pos, mPos)
+                availActions.splice(availActions.indexOf('primaryFire'), 1);
+            }
+
+            // ability input
+            var ablArr = ['q','w','e','r'];
+            for (var i = 0; i < ablArr.length; i++) {
+                if (input.isKeyDown(ablArr[i]) && 
+                    pos.x !== mPos.x && pos.y !== mPos.y && 
+                    availActions.includes(`ability${i+1}`)) {
+                        kit[`ability${i+1}Cast`](pos, mPos);
+                        availActions.splice(availActions.indexOf(`ability${i+1}`, 1))
+                    }
+            }
+        }
     } else {
-        if (selected) drawComp.shapes[0].color = 'yellow'
-        else drawComp.shapes[0].color = color
-    }
-    //*/
-
-    // control player
-    if (selected) {
-        // move to click location
+        
+        // targeting mode
         if (input.mouseButtonsDown.has('left')) {
-            GameObject.setProperty('destination', {x: mPos.x, y: mPos.y})
-        }
+            switch (targeting) {
+                case 'pos':
+                    GameObject.target = mPos;
+                    break;
+                case 'hero':
 
-        // primaryFire
-        if (input.isKeyPressed(' ') && pos.x !== mPos.x && pos.y !== mPos.y) {
-            kit.primaryFireShoot(pos, mPos)
-        }
+                    break;
+                case 'enemy':
 
-        // ability 1
-        if (input.isKeyPressed('q') && pos.x !== mPos.x && pos.y !== mPos.y) {
-            kit.ability1(pos, mPos)
+                    break;
+                default:
+                    console.warn(`Invalid targeting type: ${targeting}`);
+                    break;
+            }
+            targeting = 'none';
         }
     }
+    
 
     
 
@@ -78,17 +115,7 @@ public function update() {
         y: pos.y + moveY
     };
 
-    GameObject.setProperty('position', {x: newPos.x, y: newPos.y})
-
-    // =================== Damage & Death Animations ==============================
-    var thisColor = drawComp.shapes[0].color;
-
-    if (damaged) {
-        thisColor = color;
-        damaged = false;
-    }
-
-    
+    if (!GameObject.movementLocked) GameObject.setProperty('position', {x: newPos.x, y: newPos.y})
 }
 
 public function takeDamage(amount) {
@@ -100,12 +127,18 @@ public function takeDamage(amount) {
     if (amount > GameObject.health) amount = GameObject.health;
     GameObject.health -= amount;
     
-    damaged = true;
-    drawComp.shapes[0].color = 'red';
+    GameObject.setProperty('color', 'red')
+    time.setTimer(`${GameObject.name} dmg`, 0.1, () => {
+        GameObject.setProperty('color', GameObject.origColor);
+    })
 
     if (GameObject.health === 0) this.die()
 
     return GameObject.health;
+}
+
+public function requestTarget (type) {
+    targeting = type;
 }
 
 public function die() {
@@ -119,3 +152,4 @@ function isInsideCircle(x, y, centerX, centerY, radius) {
     // Check if it's less than the squared radius
     return distanceSquared < radius ** 2;
 }
+

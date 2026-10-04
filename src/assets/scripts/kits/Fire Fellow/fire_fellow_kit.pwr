@@ -1,17 +1,28 @@
 
+var time = Engine.time;
+
 var playerController = GameObject.getComponentByName('Controller');
+var drawComp = GameObject.getComponentByName('Graphics');
 
 public var maxHealth = number;
 public var speed = number;
 
 public var primaryFire = object;
+public var ability1 = object;
+public var ability2 = object;
 
+// setup
 public function awake() {
     GameObject.setProperty('maxHealth', maxHealth)
     GameObject.setProperty('health', maxHealth)
     GameObject.setProperty('speed', speed)
     
     //console.log(GameObject)
+}
+
+// utils
+public function recieveTargets() {
+    console.log(GameObject.target)
 }
 
 // primary fire
@@ -51,6 +62,7 @@ public class FireBlast {
 }
 
 public function primaryFireShoot(pos, dir) {
+    // create projectile
     var dx = dir.x - pos.x;
     var dy = dir.y - pos.y;
     var length = Math.sqrt(dx * dx + dy * dy);
@@ -68,8 +80,62 @@ public function primaryFireShoot(pos, dir) {
     }
 
     var projectile = new FireBlast(inputObj)
-    //console.log(projectile)
     Scene.createGameObject(projectile)
+
+    // re-enable primaryFire after 'primaryFire.stats.fireRate' seconds
+    time.setTimer('fireFellowPF', primaryFire.stats.fireRate, () => {
+        playerController.availActions.push('primaryFire')
+    })
 }
 
-// ability 1
+//ability1
+public function ability1Cast () {
+    playerController.requestTarget('pos')
+    console.log('fire dash!')
+}
+
+
+// ability 2
+public class outburst {
+    constructor(inputObj) {
+        var stats = inputObj.stats;
+        var graphics = inputObj.graphics;
+
+        this.template = 'combat/explosion.json',
+        this.position = GameObject.position,
+        this.size = {
+            r: stats.radius,
+        }
+        this.componentData = {
+            Controller: {
+                ownerId: GameObject.id,
+                damage: stats.damage,
+                radius: stats.radius
+            }
+        }
+    }
+}
+
+public function ability2Cast () {
+
+    var inputObj = {
+        stats: ability2.stats,
+        graphics: ability2.graphics
+    }
+
+    //begin channel
+    GameObject.color = 'orange'
+    GameObject.setProperty('inputLocked', true);
+    GameObject.setProperty('movementLocked', true)
+    time.setTimer('fireFellowCast1', ability2.stats.castTime, () => {
+        GameObject.color = GameObject.origColor;
+        GameObject.setProperty('inputLocked', false)
+        GameObject.setProperty('movementLocked', false)
+        Scene.createGameObject(new outburst(inputObj))
+    })
+
+    // re-enable ability after 'stats.cooldown' seconds
+    time.setTimer('fireFellowCooldown1', ability2.stats.cooldown, () => {
+        playerController.availActions.push('ability2')
+    })
+}

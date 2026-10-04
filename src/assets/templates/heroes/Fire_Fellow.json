@@ -15,7 +15,7 @@
             "data": {
                 "maxHealth": 250,
                 "speed": 5,
-                "primaryFire": {
+                "primaryFire": {                 
                     "stats": {
                         "damage": 35,
                         "speed": 10,
@@ -24,6 +24,7 @@
                         },
                         "range": 250,
                         "pierce": 0,
+                        "fireRate": 0.45,
                         "explosion": {
                             "damage": 20,
                             "radius": 30
@@ -37,6 +38,42 @@
                             },
                             "color": "red",
                             "fill": true
+                        }
+                    ]
+                },
+                "ability1": {
+                    "stats": {
+                        "damage": 50,
+                        "radius": 55,
+                        "speed": 10,
+                        "range": 200
+                    },
+                    "graphics":{
+                        "shape": "circle",
+                        "size": {
+                            "r": 55
+                        },
+                        "color": "red",
+                        "fill": false,
+                        "strokeSize": 2
+                    }
+                },
+                "ability2": {
+                    "stats": {
+                        "damage": 10,
+                        "radius": 100,
+                        "castTime": 0.3,
+                        "cooldown": 5
+                    },
+                    "graphics": [
+                        {
+                            "shape": "circle",
+                            "size": {
+                                "r": 150
+                            },
+                            "color": "red",
+                            "fill": false,
+                            "strokeSize": 2
                         }
                     ]
                 }

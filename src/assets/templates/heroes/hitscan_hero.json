@@ -15,10 +15,10 @@
             "data": {
                 "maxHealth": 250,
                 "speed": 5,
-                "damage": 75,
-                "pierce": 3,
+                "damage": 35,
+                "pierce": 0,
                 "range": 500,
-                "aDamage": 70
+                "fireRate": 0.2
             }
         },
         "Graphics": {

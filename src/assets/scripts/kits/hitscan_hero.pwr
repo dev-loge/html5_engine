@@ -4,9 +4,12 @@ public var speed = number;
 public var damage = number;
 public var pierce = number;
 public var range = number;
-public var aDamage = number;
+public var fireRate = number;
 
+var controller = GameObject.getComponentByName('Controller');
 var drawComp = GameObject.getComponentByName('Graphics');
+
+var time = Engine.time;
 
 public function awake() {
     GameObject.setProperty('maxHealth', maxHealth)
@@ -34,8 +37,6 @@ public function primaryFireShoot(pos, target) {
                                         var filArr = [GameObject.name, 'Game Manager']
                                         return !filArr.includes(hit.gameObject.name)
                                     })
-    console.log(hits)
-    console.log(pierce)
 
     for (var hit of hits) {
         var hitObj = hit.gameObject;
@@ -45,6 +46,10 @@ public function primaryFireShoot(pos, target) {
             hitController.takeDamage(damage)
         }
     }
+
+    time.setTimer('hitscanPF', fireRate, () => {
+        controller.availActions.push('primaryFire')
+    })
 
     // =========================== graphics ========================
     //draw a yellow line from origin to the last hit point, or to the point of max range

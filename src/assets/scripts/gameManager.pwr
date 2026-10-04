@@ -67,7 +67,9 @@ public function update () {
                 selecting = true;
 
                 //unselect current hero
-                if (selectedHero) selectedHero.setProperty('selected', false)
+                if (selectedHero) {
+                    selectedHero.setProperty('selected', false)
+                }
 
                 //select hero
                 selectedHero = hero;

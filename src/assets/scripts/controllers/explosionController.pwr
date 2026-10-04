@@ -5,6 +5,7 @@ public var radius = number;
 
 var hitbox = GameObject.getComponentByName('Hitbox');
 var drawComp = GameObject.getComponentByName('Graphics');
+var damagedTargets = new Set();
 
 var frames = 0;
 
@@ -31,10 +32,22 @@ public function update () {
     }
 
     for (var collision of hitbox.collisions) {
-        var collGameObject = collision[0].gameObject;
-        var collController = collGameObject.getComponentByName('Controller');
+        var collHitbox = collision[0];
+        var collType = collision[1];
+        var collGameObject = collHitbox.gameObject;
+        if (!collGameObject) continue;
 
-        if (collGameObject.health && damage) collController.takeDamage(damage);
+        // Explosion should only deal one-time entry damage.
+        if (collType !== 'onEnter') continue;
+        if (collGameObject.id === ownerId) continue;
+        if (damagedTargets.has(collGameObject.id)) continue;
+
+        var collController = collGameObject.getComponentByName('Controller');
+        var canTakeDamage = collGameObject.health !== undefined && collGameObject.health !== null && collController && typeof collController.takeDamage === 'function';
+        if (!canTakeDamage || !damage) continue;
+
+        collController.takeDamage(damage);
+        damagedTargets.add(collGameObject.id);
     }
 
     if (frames > 2) GameObject.destroy()

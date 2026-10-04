@@ -14,25 +14,30 @@ class Hitbox extends Component {
         this.offset = new Vector2(hitboxOffset.x || 0, hitboxOffset.y || 0);
 
         // Check for correct size properties
+        var gameObjectSize = gameObject.size && typeof gameObject.size === 'object' ? gameObject.size : null;
         this.shape = inputObject.shape ? inputObject.shape : 'default';
         if (this.shape === 'default') {
-            switch(true) {
-                case 'w' in gameObject.size && 'h' in gameObject.size:
-                    this.shape = 'rectangle';
-                    break;
-                case 'r' in gameObject.size:
-                    this.shape = 'circle';
-                    break;
-                default:
-                    console.error(`Unknown size properties for hitbox ${desiredName} on ${gameObject.name}; ${JSON.stringify(gameObject.size)}`);
+            if (gameObjectSize) {
+                switch(true) {
+                    case 'w' in gameObjectSize && 'h' in gameObjectSize:
+                        this.shape = 'rectangle';
+                        break;
+                    case 'r' in gameObjectSize:
+                        this.shape = 'circle';
+                        break;
+                    default:
+                        console.error(`Unknown size properties for hitbox ${desiredName} on ${gameObject.name}; ${JSON.stringify(gameObject.size)}`);
+                }
+            } else {
+                console.error(`Invalid size for hitbox ${desiredName} on ${gameObject.name}; expected object, got ${typeof gameObject.size}`);
             }
         }
 
         var expectedSizeProps = new Map([
             ['rectangle', ['w', 'h']],
             ['circle', ['r']],
-        ]).get(this.shape);
-        var defaultSize = gameObject.size;
+        ]).get(this.shape) || [];
+        var defaultSize = gameObjectSize;
 
         // if game object has a size property at all and it matches the expected props, default to those
         if (defaultSize && expectedSizeProps.every(prop => defaultSize[prop] !== undefined)) inputObject.size = inputObject.size || defaultSize;

@@ -1,6 +1,7 @@
 //engine parts
 import { Renderer } from './render.js';
 import { InputManager } from './input.js';
+import { TimeManager } from './time.js';
 import { Scene } from './scene.js';
 import { GameObject } from "./game-object.js";
 
@@ -15,6 +16,7 @@ export class Engine {
         });
         this.renderer = new Renderer(canvas);
         this.input = new InputManager(canvas);
+        this.time = new TimeManager();
         this.scenes = [];
         this.currentScene = null;
         this.gameObjectRegistry = new Map();  // Global registry for gameObject script access
@@ -60,6 +62,9 @@ export class Engine {
             console.warn('No scenes registered, ending loop.');
             return;
         }
+
+        // update time
+        this.time.update();
 
         // update game objects
         //console.log(this.gameObjectRegistry)

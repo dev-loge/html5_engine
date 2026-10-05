@@ -4,7 +4,7 @@ import Vector2 from '../math/vector2.js';
 class Hitbox extends Component {
     constructor(gameObject, inputObject, engine, desiredName = null) {
         super(gameObject, inputObject, engine, desiredName);
-        this.graphic = false; // for debugging: hitboxes will be rendered as green rectangles (can be turned off in the future)
+        //this.renderLayers = inputObject.renderLayers || [engine.settings.renderLayers[1].name]; // for debugging: hitboxes will be rendered as green rectangles (can be turned off in the future)
         
         this.position = gameObject.position;
         this.tags = inputObject.tags || [];

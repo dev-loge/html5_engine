@@ -29,6 +29,36 @@ export class Engine {
         // Expose engine to global scope for script access
         window.__engine = this;
 
+        // Load Settings
+        var settingsRes;
+        try {
+            settingsRes = await fetch('./settings.json');
+            this.settings = await settingsRes.json();
+            if (!this.settings) 
+                console.error('Failed to load settings.');
+        } catch (error) {
+            console.error('Error loading settings:', error);
+        }
+
+        // Initialize renderLayers
+        if (!this.settings.renderLayers || this.settings.renderLayers.length === 0) {
+            this.settings.renderLayers = [{ "name": "Default" }];
+        }
+        for (let i = 0; i < this.settings.renderLayers.length; i++) {
+            if (!this.settings.renderLayers[i].name) {
+                this.settings.renderLayers[i].name = `Layer ${i + 1}`;
+            } else {
+                if (this.settings.renderLayers[i].name === "Background" || this.settings.renderLayers[i].name === "UI") {
+                    console.warn(`Render layer name "${this.settings.renderLayers[i].name}" is reserved.`);
+                    this.settings.renderLayers[i].name = `Layer ${i + 1}`;
+                }
+            }
+        }
+        this.settings.renderLayers.splice(0, 0, { "name": "Background" });
+        this.settings.renderLayers.push({ "name": "UI" });
+
+        this.renderer.setRenderLayers(this.settings.renderLayers);
+
         // Load Scenes
         var res = await fetch('./engine/engine-parts/utils/scene-exports.json');
         var { files } = await res.json();

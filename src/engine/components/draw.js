@@ -18,7 +18,8 @@ export class Draw extends Component {
                                                                                                             })];
         var drawOffset = inputObject.offset && inputObject.offset.isValidCoords(engine.canvas) ? inputObject.offset : {x: 0, y: 0};
         this.offset = new Vector2(drawOffset.x || 0, drawOffset.y || 0);
-        this.graphic = true;
+        
+        this.renderLayers = inputObject.renderLayers || [engine.settings.renderLayers[1].name];
     }
 }
 

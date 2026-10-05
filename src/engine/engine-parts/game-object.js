@@ -37,6 +37,8 @@ export class GameObject {
             }
         }
 
+        this.updateTransform();
+
         var templateComponentNames = template.components ? Object.keys(template.components) : [];
         var overrideComponentNames = components ? Object.keys(components) : [];
         var componentsList = [...new Set([...templateComponentNames, ...overrideComponentNames])];
@@ -67,8 +69,6 @@ export class GameObject {
             this.components[componentInstance.name] = componentInstance;
         }
         
-        this.graphicComps = componentsList.filter(comp => this.components[comp].graphic);
-    
         // ======================== Children Handling ========================
         // create children
         this.children = [];
@@ -81,18 +81,17 @@ export class GameObject {
             }
         }
 
+    }
 
+    // ======================== Getters ========================
 
+    get worldRotation() {
+        return (this.parent ? this.parent.worldRotation : 0) + (this.rotation || 0);
     }
 
     // ======================== Manage This ========================
     update() {
-        // update position to be relative to parent's (if child)
-        if ('parent' in this) {
-            var parentPos = this.parent.position;
-            this.position = parentPos.add(this.posOffset);
-        }
-
+        this.updateTransform();
         this.callComponentMethod('update')
     }
 
@@ -144,6 +143,21 @@ export class GameObject {
 
         if (validated) this[key] = value
         return true;
+    }
+
+    updateTransform() {
+        if (!this.parent) return;
+
+        var parentRotation = this.parent.worldRotation;
+        var cos = Math.cos(parentRotation);
+        var sin = Math.sin(parentRotation);
+        var offset = this.posOffset || new Vector2(0, 0);
+        var rotatedOffset = new Vector2(
+            offset.x * cos - offset.y * sin,
+            offset.x * sin + offset.y * cos
+        );
+
+        this.position = this.parent.position.add(rotatedOffset);
     }
 
     // ======================== Manage Children ========================

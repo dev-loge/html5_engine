@@ -4,6 +4,7 @@ export class Component {
         this.gameObject = gameObject;
         this.inputObject = inputObject;
         this.type = this.constructor.name.toLowerCase();
+        this.rotation = inputObject?.rotation;
 
         if (desiredName) {
             // Use the provided desired name if it's not already taken

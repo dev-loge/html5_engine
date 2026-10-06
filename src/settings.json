@@ -6,6 +6,7 @@
         "height": 600
     },
     "fullscreen": false,
+    "networkUrl": "ws://localhost:8080",
     "renderLayers": [
         {
             "name": "Layer 1"

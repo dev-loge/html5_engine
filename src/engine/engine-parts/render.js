@@ -105,65 +105,80 @@ export class Renderer {
                         // render text
                         if (component.text) {
                             ctx.fillStyle = component.color || '#ffffff';
-                            ctx.font = `${component.fontSize || 16}px ${component.font || 'Arial'}`;
-                            ctx.textBaseline = 'hanging';
+                            var fontSize = component.fontSize || 16;
+                            var lineHeight = fontSize;
+                            ctx.font = `${fontSize}px ${component.font || 'Arial'}`;
+                            ctx.textAlign = ['left', 'center', 'right'].includes(component.hAlign)
+                                ? component.hAlign
+                                : 'left';
+                            ctx.textBaseline = 'top';
 
-                            // text wrapping logic
+                            var lines = [];
                             switch (component.overflow) {
                                 case 'word wrap':
                                     var words = component.text.split(' ');
                                     var line = '';
-                                    var y = compPos.y;
-                                    for (var n = 0; n < words.length; n++) {
-                                        var testLine = line + words[n] + ' ';
-                                        var metrics = ctx.measureText(testLine);
-                                        var testWidth = metrics.width;
-                                        if (testWidth > component.size.w && n > 0) {
-                                            ctx.fillText(line, compPos.x, y);
-                                            line = words[n] + ' ';
-                                            y += component.fontSize || 16;
+                                    for (var word of words) {
+                                        var testLine = line ? `${line} ${word}` : word;
+                                        if (line && ctx.measureText(testLine).width > component.size.w) {
+                                            lines.push(line);
+                                            line = word;
                                         } else {
                                             line = testLine;
                                         }
                                     }
-                                    ctx.fillText(line, compPos.x, y);
+                                    lines.push(line);
                                     break;
 
                                 case 'character wrap':
-                                    var chars = component.text.split('');
                                     var line = '';
-                                    var y = compPos.y;
-                                    for (var n = 0; n < chars.length; n++) {
-                                        var testLine = line + chars[n];
-                                        var metrics = ctx.measureText(testLine);
-                                        var testWidth = metrics.width;
-                                        if (testWidth > component.size.w && n > 0) {
-                                            ctx.fillText(line, compPos.x, y);
-                                            line = chars[n];
-                                            y += component.fontSize || 16;
+                                    for (var character of Array.from(component.text)) {
+                                        var testLine = line + character;
+                                        if (line && ctx.measureText(testLine).width > component.size.w) {
+                                            lines.push(line);
+                                            line = character;
                                         } else {
                                             line = testLine;
                                         }
                                     }
-                                    ctx.fillText(line, compPos.x, y);
+                                    lines.push(line);
                                     break;
 
                                 case 'clip':
+                                case 'none':
+                                    lines.push(component.text);
+                                    break;
+
+                                default:
+                                    console.error(`Unknown overflow type: ${component.overflow}`);
+                                    break;
+                            }
+
+                            if (lines.length > 0) {
+                                var textX = compPos.x;
+                                if (ctx.textAlign === 'center') textX += component.size.w / 2;
+                                if (ctx.textAlign === 'right') textX += component.size.w;
+
+                                var textBlockHeight = lines.length * lineHeight;
+                                var textY = compPos.y;
+                                if (component.vAlign === 'middle') {
+                                    textY += (component.size.h - textBlockHeight) / 2;
+                                } else if (component.vAlign === 'bottom') {
+                                    textY += component.size.h - textBlockHeight;
+                                } else if (component.vAlign !== 'top') {
+                                    console.error(`Unknown vertical alignment: ${component.vAlign}`);
+                                }
+
+                                if (component.overflow === 'clip') {
                                     ctx.save();
                                     ctx.beginPath();
                                     ctx.rect(compPos.x, compPos.y, component.size.w, component.size.h);
                                     ctx.clip();
-                                    ctx.fillText(component.text, compPos.x, compPos.y);
-                                    ctx.restore();
-                                    break;
-
-                                case 'none':
-                                    ctx.fillText(component.text, compPos.x, compPos.y);
-                                    break;
-                                    
-                                default:
-                                    console.error(`Unknown overflow type: ${component.overflow}`);
-                                    break;
+                                }
+                                for (var index = 0; index < lines.length; index++) {
+                                    ctx.fillText(lines[index], textX, textY + index * lineHeight);
+                                }
+                                if (component.overflow === 'clip') ctx.restore();
                             }
                         }
                         // additional rendering logic

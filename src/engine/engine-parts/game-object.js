@@ -209,7 +209,7 @@ export class GameObject {
 
     // returns a single component
     getComponentByName(name) {
-        if (!this.components[name]) console.error(`${name} component not found on ${this.name}`)
+        if (!this.components[name]) return null;
         return this.components[name]
     }
 

@@ -4,6 +4,7 @@ import { InputManager } from './input.js';
 import { TimeManager } from './time.js';
 import { Scene } from './scene.js';
 import { GameObject } from "./game-object.js";
+import { NetworkManager } from './network.js';
 
 //utils
 import { fetchTemplates } from './utils/template-cache.js';
@@ -16,6 +17,7 @@ export class Engine {
         });
         this.renderer = new Renderer(canvas);
         this.input = new InputManager(canvas);
+        this.network = new NetworkManager();
         this.time = new TimeManager();
         this.scenes = [];
         this.currentScene = null;
@@ -58,6 +60,11 @@ export class Engine {
         this.settings.renderLayers.push({ "name": "UI" });
 
         this.renderer.setRenderLayers(this.settings.renderLayers);
+
+        // Initialize network connection if URL is provided in settings
+        if (this.settings.networkUrl) {
+            await this.network.connect(this.settings.networkUrl);
+        }
 
         // Load Scenes
         var res = await fetch('./engine/engine-parts/utils/scene-exports.json');
@@ -103,6 +110,9 @@ export class Engine {
         //update input states
         this.input.update();
 
+        //update network
+        this.network.update();
+
         //=======DRAW STAGE========
         this.renderer.renderFrame(this.currentScene);
 
@@ -121,15 +131,18 @@ export class Engine {
         }
     }
 
-    async goToScene(sceneName) {
-        //console.log(`Attempting to switch to scene: ${sceneName}`);
+    // data: optional array of GameObjects that persist into the next scene
+    async goToScene(sceneName, data = []) {
         var scene = this.scenes.find(s => s.name === sceneName);
-        //console.log(`Found scene: ${scene ? scene.name : 'None'}`);
         if (scene) {
+            var persisted = (Array.isArray(data) ? data : [data]).filter(Boolean);
 
             this.currentScene.reset();
-            await scene.setupScene();
+            scene.reset();
+            // Switch first so scripts' Scene/destroy() resolve to the new scene during setup
             this.currentScene = scene;
+            scene.adoptGameObjects(persisted);
+            await scene.setupScene();
 
             // Call start on all components in the new scene
             await this.awaitScriptPromises();

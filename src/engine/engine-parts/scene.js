@@ -43,6 +43,17 @@ export class Scene {
         this.nextObjectId = 0;
     }
 
+    adoptGameObjects(objects) {
+        var collected = new Set();
+        var collect = (obj) => {
+            if (!obj || collected.has(obj)) return;
+            collected.add(obj);
+            (obj.children || []).forEach(collect);
+        };
+        objects.forEach(collect);
+        collected.forEach(obj => this.registerGameObject(obj));
+    }
+
     // ======================== GameObject Management ========================
 
     async createGameObject(input) {

@@ -22,7 +22,10 @@ async function loadScript(path, data, gameObject, engine) {
         var gameObjectId = gameObject.id;
         //console.log(`Binding GameObject with ID ${gameObjectId} to script ${path}`);
         scriptText = `const GameObject = window.__engine.gameObjectRegistry.get(${gameObjectId});\n` + 
-                     'const Scene = window.__engine.currentScene;\n' +
+                     'const Scene = new Proxy({}, {\n' +
+                     '  get: (_, k) => { const s = window.__engine.currentScene; const v = s[k]; return typeof v === "function" ? v.bind(s) : v; },\n' +
+                     '  set: (_, k, v) => { window.__engine.currentScene[k] = v; return true; }\n' +
+                     '});\n' +
                      'const Engine = window.__engine;\n' +
                      `const Raycast = ${Raycast.toString()};\n` +
                      `const Vector2 = ${Vector2.toString()};\n` +

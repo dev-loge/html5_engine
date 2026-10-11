@@ -19,6 +19,68 @@ export class Renderer {
         this.renderLayers = layers;
     }
 
+    renderTextBox(shape, pos) {
+        var ctx = this.ctx;
+        var { w, h } = shape.size;
+        var lineHeight = shape.fontSize;
+
+        ctx.save();
+        ctx.fillStyle = shape.color;
+        ctx.strokeStyle = shape.color;
+        ctx.font = `${shape.fontSize}px ${shape.font}`;
+        ctx.textAlign = ['left', 'center', 'right'].includes(shape.hAlign) ? shape.hAlign : 'left';
+        ctx.textBaseline = 'top';
+
+        var text = String(shape.text);
+        var lines = [];
+        switch (shape.overflow) {
+            case 'word wrap':
+            case 'character wrap': {
+                var tokens = shape.overflow === 'word wrap' ? text.split(' ') : Array.from(text);
+                var joiner = shape.overflow === 'word wrap' ? ' ' : '';
+                var line = '';
+                for (var token of tokens) {
+                    var testLine = line ? line + joiner + token : token;
+                    if (line && ctx.measureText(testLine).width > w) {
+                        lines.push(line);
+                        line = token;
+                    } else {
+                        line = testLine;
+                    }
+                }
+                lines.push(line);
+                break;
+            }
+            case 'clip':
+            case 'none':
+                lines.push(text);
+                break;
+            default:
+                console.error(`Unknown overflow type: ${shape.overflow}`);
+        }
+
+        var textX = pos.x;
+        if (ctx.textAlign === 'center') textX += w / 2;
+        if (ctx.textAlign === 'right') textX += w;
+
+        var blockHeight = lines.length * lineHeight;
+        var textY = pos.y;
+        if (shape.vAlign === 'middle') textY += (h - blockHeight) / 2;
+        else if (shape.vAlign === 'bottom') textY += h - blockHeight;
+        else if (shape.vAlign !== 'top') console.error(`Unknown vertical alignment: ${shape.vAlign}`);
+
+        if (shape.overflow === 'clip') {
+            ctx.beginPath();
+            ctx.rect(pos.x, pos.y, w, h);
+            ctx.clip();
+        }
+        for (var i = 0; i < lines.length; i++) {
+            if (shape.fill) ctx.fillText(lines[i], textX, textY + i * lineHeight);
+            else ctx.strokeText(lines[i], textX, textY + i * lineHeight);
+        }
+        ctx.restore();
+    }
+
     renderFrame(scene) {
         var ctx = this.ctx;
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -74,7 +136,7 @@ export class Renderer {
                                 ctx.lineWidth = shape.strokeSize;
                                 switch(shape.shape) {
                                     case 'rectangle':
-                                        if (shape.fill) 
+                                        if (shape.fill)
                                             ctx.fillRect(shapePos.x, shapePos.y, shape.size.w, shape.size.h);
                                         else 
                                             ctx.strokeRect(shapePos.x, shapePos.y, shape.size.w, shape.size.h);
@@ -96,96 +158,20 @@ export class Renderer {
                                         ctx.lineTo(shapePos.x + shape.size.x2, shapePos.y + shape.size.y2);
                                         ctx.stroke();
                                         break;
+                                    case 'textbox':
+                                        this.renderTextBox(shape, shapePos);
+                                        break;
                                     default:
                                         console.error(`Unknown shape type: ${shape.shape}`);
                                 }
                             }
                         }
 
-                        // render text
-                        if (component.text) {
-                            ctx.fillStyle = component.color || '#ffffff';
-                            var fontSize = component.fontSize || 16;
-                            var lineHeight = fontSize;
-                            ctx.font = `${fontSize}px ${component.font || 'Arial'}`;
-                            ctx.textAlign = ['left', 'center', 'right'].includes(component.hAlign)
-                                ? component.hAlign
-                                : 'left';
-                            ctx.textBaseline = 'top';
-
-                            var lines = [];
-                            switch (component.overflow) {
-                                case 'word wrap':
-                                    var words = component.text.split(' ');
-                                    var line = '';
-                                    for (var word of words) {
-                                        var testLine = line ? `${line} ${word}` : word;
-                                        if (line && ctx.measureText(testLine).width > component.size.w) {
-                                            lines.push(line);
-                                            line = word;
-                                        } else {
-                                            line = testLine;
-                                        }
-                                    }
-                                    lines.push(line);
-                                    break;
-
-                                case 'character wrap':
-                                    var line = '';
-                                    for (var character of Array.from(component.text)) {
-                                        var testLine = line + character;
-                                        if (line && ctx.measureText(testLine).width > component.size.w) {
-                                            lines.push(line);
-                                            line = character;
-                                        } else {
-                                            line = testLine;
-                                        }
-                                    }
-                                    lines.push(line);
-                                    break;
-
-                                case 'clip':
-                                case 'none':
-                                    lines.push(component.text);
-                                    break;
-
-                                default:
-                                    console.error(`Unknown overflow type: ${component.overflow}`);
-                                    break;
-                            }
-
-                            if (lines.length > 0) {
-                                var textX = compPos.x;
-                                if (ctx.textAlign === 'center') textX += component.size.w / 2;
-                                if (ctx.textAlign === 'right') textX += component.size.w;
-
-                                var textBlockHeight = lines.length * lineHeight;
-                                var textY = compPos.y;
-                                if (component.vAlign === 'middle') {
-                                    textY += (component.size.h - textBlockHeight) / 2;
-                                } else if (component.vAlign === 'bottom') {
-                                    textY += component.size.h - textBlockHeight;
-                                } else if (component.vAlign !== 'top') {
-                                    console.error(`Unknown vertical alignment: ${component.vAlign}`);
-                                }
-
-                                if (component.overflow === 'clip') {
-                                    ctx.save();
-                                    ctx.beginPath();
-                                    ctx.rect(compPos.x, compPos.y, component.size.w, component.size.h);
-                                    ctx.clip();
-                                }
-                                for (var index = 0; index < lines.length; index++) {
-                                    ctx.fillText(lines[index], textX, textY + index * lineHeight);
-                                }
-                                if (component.overflow === 'clip') ctx.restore();
-                            }
-                        }
                         // additional rendering logic
 
                         ctx.restore();
                     }
-                    }
+                }
             }
 
         }

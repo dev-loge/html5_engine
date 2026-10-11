@@ -131,16 +131,18 @@ export class Engine {
         }
     }
 
-    // data: optional array of GameObjects that persist into the next scene
-    async goToScene(sceneName, data = []) {
+    // data: plain object, available to the next scene as Scene.transitionData.
+    // Objects with _persist === true carry over into the next scene.
+    async goToScene(sceneName, data = {}) {
         var scene = this.scenes.find(s => s.name === sceneName);
         if (scene) {
-            var persisted = (Array.isArray(data) ? data : [data]).filter(Boolean);
+            var persisted = this.currentScene.gameObjects.filter(obj => obj._persist === true);
 
             this.currentScene.reset();
             scene.reset();
             // Switch first so scripts' Scene/destroy() resolve to the new scene during setup
             this.currentScene = scene;
+            scene.transitionData = data;
             scene.adoptGameObjects(persisted);
             await scene.setupScene();
 

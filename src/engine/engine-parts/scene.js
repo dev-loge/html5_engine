@@ -10,6 +10,7 @@ export class Scene {
         this.gameObjects = [];
         this.nextObjectId = 0;
         this.templateCache = {};
+        this.transitionData = {};
     }
 
     // ======================== Scene Management ========================
@@ -41,6 +42,7 @@ export class Scene {
         });
         this.gameObjects = [];
         this.nextObjectId = 0;
+        this.transitionData = {};
     }
 
     adoptGameObjects(objects) {

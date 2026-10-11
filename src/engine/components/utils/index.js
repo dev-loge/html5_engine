@@ -1,10 +1,9 @@
 import Hitbox from './../hitbox.js';
 import Script from './../script.js';
 import Draw from './../draw.js';
-import TextBox from './../text-box.js';
 
 // Named exports for convenience
-export {Hitbox, Script, Draw, TextBox};
+export {Hitbox, Script, Draw};
 
 // Component registry (map) and helpers
 var componentsMap = new Map();
@@ -31,6 +30,5 @@ function listComponents() {
 registerComponent('Hitbox', Hitbox);
 registerComponent('Script', Script);
 registerComponent('Draw', Draw);
-registerComponent('TextBox', TextBox);
 
 export { componentsMap as _componentsMap, registerComponent, unregisterComponent, getComponent, listComponents };

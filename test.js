@@ -2,14 +2,6 @@
 /*
 ==========================TODO==========================
 Priority:
- 0. Parent & Children GameObjects
-
-   - Refactor Coordinates project wide?
-
-   - (0,0) is currently considered the top-left of the object, would rather it be the center (Consider similar changes for canvas)
-
-   - Game objects can have other objects as parents. Their position will be relative to their parent's.
-
 
  1. Sprites (rendering images instead of simple shapes)
 
@@ -28,18 +20,9 @@ Priority:
    - Object velocities & acceleration
 
    - Gravity, air resistcance, friction(materials?)
-     
- 
-3. Rendering Layers
-
-   - layer value on all graphic components
-
-   - scene has background always at the farthest layer
-
-   - UI components always at the closest layer
 
 
- 4. Camera & UI Components
+ 3. Camera
 
    - Camera determines what gets sent to the renderer & where
 
@@ -52,7 +35,7 @@ Priority:
    - requires a camera component on the object
 
  
- 5. Animation system (frame-based animations, tweening, etc.)
+ 4. Animation system (frame-based animations, tweening, etc.)
 
    - Sprite animations
 
@@ -61,7 +44,7 @@ Priority:
    - Tweens????
 
 
- 6. Audio management (playing sounds, music, etc.)
+ 5. Audio management (playing sounds, music, etc.)
 
     - Audio Component for game objects
 
@@ -74,15 +57,9 @@ Priority:
 
 
  =========================BUGS============================
- - Scenes retain their game objects and state when switching away and back to them. 
-   (This can be used to create persistent objects across scenes, but may cause unintended side effects if not expected. 
-   Consider adding an option to reset scene state when switching back to it.)
 
- - Empty gameobject when changing scene?
 
 =========================OPTIMIZATIONS========================
- - add a heler lib somewhere to help with data validation project wide
-
  - WebGL rendering (shaders, textures, sprites, etc.)
    - Potentially use to send graphics data to GPU for more efficient rendering, even for simple shapes & 
      sprites

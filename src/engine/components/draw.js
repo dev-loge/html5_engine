@@ -21,6 +21,10 @@ export class Draw extends Component {
         
         this.renderLayers = inputObject.renderLayers || [engine.settings.renderLayers[1].name];
     }
+
+    getShape(name) {
+        return this.shapes.find(shape => shape.name === name) || null;
+    }
 }
 
 export default Draw;

@@ -1,0 +1,56 @@
+
+var manObj = Scene.gameObjects.find(obj => obj.name == 'Client Manager')
+var clientManager = manObj.getComponentByName('ClientManager')
+var input = Engine.input;
+
+var drawComp = GameObject.getComponentByName('Draw');
+
+var xPos = 0;
+var yPos = 0;
+var w = 0;
+var h = 0;
+
+public var event = object;
+public var radioGroup = string;
+
+public function awake() {
+    xPos = GameObject.position.x;
+    yPos = GameObject.position.y;
+    w = GameObject.size.w;
+    h = GameObject.size.h;
+
+}
+
+public async function update() {
+    
+    var mPos = input.mousePosition;
+
+    // ========================== Hover & Radio Behaviour ===========================
+
+    var hovered = mPos.x < xPos + w && mPos.x > xPos && mPos.y < yPos + h && mPos.y > yPos;
+
+    if (hovered || GameObject.selected == true) {
+        drawComp.shapes[0].color = 'yellow';
+    } else {
+        drawComp.shapes[0].color = 'white';
+    }
+
+    // ========================== Click Event ===========================
+    if (hovered && input.mouseButtonsPressed.has('left')) {
+
+        switch(event.fn) {
+            case 'switchScene':
+                await clientManager.changeScene(event.args.targetScene);
+                break;
+            case 'setOption':
+                clientManager.setOption(event.args.option, event.args.value);
+                if (radioGroup && radioGroup != 'None') manObj.setProperty(radioGroup, GameObject.name);
+                break;
+            case 'startAIGame':
+                clientManager.startAIGame()
+                break;
+        }
+
+    }
+
+}

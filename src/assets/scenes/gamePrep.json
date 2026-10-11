@@ -1,0 +1,694 @@
+{
+    "name": "gamePrep",
+    "objects": [
+        {
+            "name": "vAIContainer",
+            "position": {
+                "x": 30,
+                "y": 30
+            },
+            "size": {
+                "w": 340,
+                "h": 80
+            },
+            "components": {
+                "Outline": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "rectangle",
+                            "color": "white",
+                            "fill": false
+                        },
+                        {
+                            "shape": "textbox",
+                            "name": "Label",
+                            "text": "Versus AI",
+                            "color": "white",
+                            "font": "Arial",
+                            "fontSize": 24,
+                            "hAlign": "center",
+                            "vAlign": "top",
+                            "offset": {
+                                "x": 0,
+                                "y": 3
+                            }
+                        }
+                    ]
+                }
+            },
+            "children": [
+                {
+                    "name": "aiEasy",
+                    "position": {
+                        "x": 10,
+                        "y": 30
+                    },
+                    "size": {
+                        "w": 100,
+                        "h": 40
+                    },
+                    "components": {
+                        "Button": {
+                            "type": "Script",
+                            "script": "btnController.pwr",
+                            "data": {
+                                "event": {
+                                    "fn": "setOption",
+                                    "args": {
+                                        "option": "gameOption",
+                                        "value": "easy"
+                                    }
+                                },
+                                "radioGroup": "gameOption"
+                            }
+                        },
+                        "Draw": {
+                            "type": "Draw",
+                            "shapes": [
+                                {
+                                    "shape": "rectangle",
+                                    "color": "white",
+                                    "fill": false
+                                },
+                                {
+                                    "shape": "textbox",
+                                    "name": "Text",
+                                    "text": "Easy",
+                                    "color": "white",
+                                    "font": "Arial",
+                                    "fontSize": 20,
+                                    "hAlign": "center",
+                                    "vAlign": "middle"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "aiMedium",
+                    "position": {
+                        "x": 120,
+                        "y": 30
+                    },
+                    "size": {
+                        "w": 100,
+                        "h": 40
+                    },
+                    "components": {
+                        "Button": {
+                            "type": "Script",
+                            "script": "btnController.pwr",
+                            "data": {
+                                "event": {
+                                    "fn": "setOption",
+                                    "args": {
+                                        "option": "gameOption",
+                                        "value": "medium"
+                                    }
+                                },
+                                "radioGroup": "gameOption"
+                            }
+                        },
+                        "Draw": {
+                            "type": "Draw",
+                            "shapes": [
+                                {
+                                    "shape": "rectangle",
+                                    "color": "white",
+                                    "fill": false
+                                },
+                                {
+                                    "shape": "textbox",
+                                    "name": "Text",
+                                    "text": "Medium",
+                                    "color": "white",
+                                    "font": "Arial",
+                                    "fontSize": 20,
+                                    "hAlign": "center",
+                                    "vAlign": "middle"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "aiHard",
+                    "position": {
+                        "x": 230,
+                        "y": 30
+                    },
+                    "size": {
+                        "w": 100,
+                        "h": 40
+                    },
+                    "components": {
+                        "Button": {
+                            "type": "Script",
+                            "script": "btnController.pwr",
+                            "data": {
+                                "event": {
+                                    "fn": "setOption",
+                                    "args": {
+                                        "option": "gameOption",
+                                        "value": "hard"
+                                    }
+                                },
+                                "radioGroup": "gameOption"
+                            }
+                        },
+                        "Draw": {
+                            "type": "Draw",
+                            "shapes": [
+                                {
+                                    "shape": "rectangle",
+                                    "color": "white",
+                                    "fill": false
+                                },
+                                {
+                                    "shape": "textbox",
+                                    "name": "Text",
+                                    "text": "Hard",
+                                    "color": "white",
+                                    "font": "Arial",
+                                    "fontSize": 20,
+                                    "hAlign": "center",
+                                    "vAlign": "middle"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "vOnline",
+            "position": {
+                "x": 30,
+                "y": 120
+            },
+            "size": {
+                "w": 340,
+                "h": 80
+            },
+            "components": {
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "rectangle",
+                            "color": "white",
+                            "fill": false
+                        },
+                        {
+                            "shape": "textbox",
+                            "name": "Label",
+                            "text": "Versus Online",
+                            "color": "white",
+                            "font": "Arial",
+                            "fontSize": 20,
+                            "hAlign": "center",
+                            "vAlign": "top",
+                            "offset": {
+                                "x": 0,
+                                "y": 3
+                            }
+                        }
+                    ]
+                }
+            },
+            "children": [
+                {
+                    "name": "find",
+                    "position": {
+                        "x": 10,
+                        "y": 30
+                    },
+                    "size": {
+                        "w": 155,
+                        "h": 40
+                    },
+                    "components": {
+                        "Button": {
+                            "type": "Script",
+                            "script": "btnController.pwr",
+                            "data": {
+                                "event": {
+                                    "fn": "setOption",
+                                    "args": {
+                                        "option": "gameOption",
+                                        "value": "find"
+                                    }
+                                },
+                                "radioGroup": "gameOption"
+                            }
+                        },
+                        "Draw": {
+                            "type": "Draw",
+                            "shapes": [
+                                {
+                                    "shape": "rectangle",
+                                    "color": "white",
+                                    "fill": false
+                                },
+                                {
+                                    "shape": "textbox",
+                                    "name": "Label",
+                                    "text": "Find Game",
+                                    "color": "white",
+                                    "font": "Arial",
+                                    "fontSize": 20,
+                                    "hAlign": "center",
+                                    "vAlign": "middle",
+                                    "offset": {
+                                        "x": 0,
+                                        "y": 3
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "create",
+                    "position": {
+                        "x": 175,
+                        "y": 30
+                    },
+                    "size": {
+                        "w": 155,
+                        "h": 40
+                    },
+                    "components": {
+                        "Button": {
+                            "type": "Script",
+                            "script": "btnController.pwr",
+                            "data": {
+                                "event": {
+                                    "fn": "setOption",
+                                    "args": {
+                                        "option": "gameOption",
+                                        "value": "create"
+                                    }
+                                },
+                                "radioGroup": "gameOption"
+                            }
+                        },
+                        "Draw": {
+                            "type": "Draw",
+                            "shapes": [
+                                {
+                                    "shape": "rectangle",
+                                    "color": "white",
+                                    "fill": false
+                                },
+                                {
+                                    "shape": "textbox",
+                                    "name": "Label",
+                                    "text": "Create Game",
+                                    "color": "white",
+                                    "font": "Arial",
+                                    "fontSize": 20,
+                                    "hAlign": "center",
+                                    "vAlign": "middle",
+                                    "offset": {
+                                        "x": 0,
+                                        "y": 3
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Enter Name",
+            "position": {
+                "x": 410,
+                "y": 50
+            },
+            "size": {
+                "w": 300,
+                "h": 50
+            },
+            "components": {
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "rectangle",
+                            "color": "white",
+                            "fill": false
+                        },
+                        {
+                            "shape": "textbox",
+                            "name": "Label",
+                            "text": "Your Name",
+                            "color": "white",
+                            "font": "Arial",
+                            "fontSize": 20,
+                            "hAlign": "center",
+                            "vAlign": "top",
+                            "offset": {
+                                "x": 0,
+                                "y": -23
+                            }
+                        },
+                        {
+                            "shape": "textbox",
+                            "name": "Name Display",
+                            "text": "",
+                            "color": "white",
+                            "font": "Arial",
+                            "fontSize": 20,
+                            "hAlign": "center",
+                            "vAlign": "middle"
+                        }
+                    ]
+                },
+                "Input": {
+                    "type": "Script",
+                    "script": "txtInput.pwr"
+                }
+            }
+        },
+        {
+            "name": "Play Button",
+            "position": {
+                "x": 410,
+                "y": 120
+            },
+            "size": {
+                "w": 300,
+                "h": 75
+            },
+            "components": {
+                "Button": {
+                    "type": "Script",
+                    "script": "btnController.pwr",
+                    "data": {
+                        "event": {
+                            "fn": "startAIGame",
+                            "args": {}
+                        },
+                        "radioGroup": "None"
+                    }
+                },
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "rectangle",
+                            "color": "white",
+                            "fill": false
+                        },
+                        {
+                            "shape": "textbox",
+                            "name": "Label",
+                            "text": "Play",
+                            "color": "white",
+                            "font": "Arial",
+                            "fontSize": 40,
+                            "hAlign": "center",
+                            "vAlign": "middle"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Deck Manager",
+            "position": {
+                "x": 30,
+                "y": 230
+            },
+            "size": {
+                "w": 690,
+                "h": 450
+            },
+            "components": {
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "rectangle",
+                            "color": "white",
+                            "fill": false
+                        },
+                        {
+                            "shape": "textbox",
+                            "name": "Label",
+                            "text": "Decks",
+                            "color": "white",
+                            "font": "Arial",
+                            "fontSize": 30,
+                            "hAlign": "center",
+                            "vAlign": "top",
+                            "offset": {
+                                "x": 0,
+                                "y": 7
+                            }
+                        }
+                    ]
+                }
+            },
+            "children": [
+                {
+                    "name": "Decks List",
+                    "position": {
+                        "x": 0,
+                        "y": 40
+                    },
+                    "size": {
+                        "w": 690,
+                        "h": 350
+                    },
+                    "components": {
+                        "Draw": {
+                            "type": "Draw",
+                            "shapes": [
+                                {
+                                    "shape": "rectangle",
+                                    "color": "white",
+                                    "fill": false
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Button",
+                    "position": {
+                        "x": 30,
+                        "y": 400
+                    },
+                    "size": {
+                        "w": 150,
+                        "h": 40
+                    },
+                    "components": {
+                        "Draw": {
+                            "type": "Draw",
+                            "shapes": [
+                                {
+                                    "shape": "rectangle",
+                                    "color": "white",
+                                    "fill": false
+                                },
+                                {
+                                    "shape": "textbox",
+                                    "name": "Label",
+                                    "text": "Create",
+                                    "color": "white",
+                                    "font": "Arial",
+                                    "fontSize": 20,
+                                    "hAlign": "center",
+                                    "vAlign": "middle"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Edit Button",
+                    "position": {
+                        "x": 190,
+                        "y": 400
+                    },
+                    "size": {
+                        "w": 150,
+                        "h": 40
+                    },
+                    "components": {
+                        "Draw": {
+                            "type": "Draw",
+                            "shapes": [
+                                {
+                                    "shape": "rectangle",
+                                    "color": "white",
+                                    "fill": false
+                                },
+                                {
+                                    "shape": "textbox",
+                                    "name": "Label",
+                                    "text": "Edit",
+                                    "color": "white",
+                                    "font": "Arial",
+                                    "fontSize": 20,
+                                    "hAlign": "center",
+                                    "vAlign": "middle"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Import Button",
+                    "position": {
+                        "x": 350,
+                        "y": 400
+                    },
+                    "size": {
+                        "w": 150,
+                        "h": 40
+                    },
+                    "components": {
+                        "Draw": {
+                            "type": "Draw",
+                            "shapes": [
+                                {
+                                    "shape": "rectangle",
+                                    "color": "white",
+                                    "fill": false
+                                },
+                                {
+                                    "shape": "textbox",
+                                    "name": "Label",
+                                    "text": "Import",
+                                    "color": "white",
+                                    "font": "Arial",
+                                    "fontSize": 20,
+                                    "hAlign": "center",
+                                    "vAlign": "middle"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Export Button",
+                    "position": {
+                        "x": 510,
+                        "y": 400
+                    },
+                    "size": {
+                        "w": 150,
+                        "h": 40
+                    },
+                    "components": {
+                        "Draw": {
+                            "type": "Draw",
+                            "shapes": [
+                                {
+                                    "shape": "rectangle",
+                                    "color": "white",
+                                    "fill": false
+                                },
+                                {
+                                    "shape": "textbox",
+                                    "name": "Label",
+                                    "text": "Export",
+                                    "color": "white",
+                                    "font": "Arial",
+                                    "fontSize": 20,
+                                    "hAlign": "center",
+                                    "vAlign": "middle"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Back Button",
+            "position": {
+                "x": 30,
+                "y": 695
+            },
+            "size": {
+                "w": 100,
+                "h": 40
+            },
+            "components": {
+                "Button": {
+                    "type": "Script",
+                    "script": "btnController.pwr",
+                    "data": {
+                        "event": {
+                            "fn": "switchScene",
+                            "args": {
+                                "targetScene": "prevScene"
+                            }
+                        },
+                        "radioGroup": "None"
+                    }
+                },
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "rectangle",
+                            "color": "white",
+                            "fill": false
+                        },
+                        {
+                            "shape": "textbox",
+                            "name": "Label",
+                            "text": "Back",
+                            "color": "white",
+                            "font": "Arial",
+                            "fontSize": 20,
+                            "hAlign": "center",
+                            "vAlign": "middle"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Options Button",
+            "position": {
+                "x": 620,
+                "y": 695
+            },
+            "size": {
+                "w": 100,
+                "h": 40
+            },
+            "components": {
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "rectangle",
+                            "color": "white",
+                            "fill": false
+                        },
+                        {
+                            "shape": "textbox",
+                            "name": "Label",
+                            "text": "Options",
+                            "color": "white",
+                            "font": "Arial",
+                            "fontSize": 20,
+                            "hAlign": "center",
+                            "vAlign": "middle"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

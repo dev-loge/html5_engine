@@ -1,0 +1,135 @@
+{
+    "name": "tutorial",
+    "objects": [
+        {
+            "name": "Title",
+            "position": {
+                "x": 0,
+                "y": 0
+            },
+            "size": {
+                "w": 750,
+                "h": 100
+            },
+            "components": {
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "textbox",
+                            "name": "Text",
+                            "text": "How to Play",
+                            "color": "white",
+                            "font": "Arial",
+                            "fontSize": 52,
+                            "hAlign": "center",
+                            "vAlign": "middle"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Content",
+            "position": {
+                "x": 20,
+                "y": 100
+            },
+            "size": {
+                "w": 710,
+                "h": 575
+            },
+            "components": {
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "rectangle",
+                            "color": "white",
+                            "fill": false
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Back Button",
+            "position": {
+                "x": 30,
+                "y": 695
+            },
+            "size": {
+                "w": 100,
+                "h": 40
+            },
+            "components": {
+                "Button": {
+                    "type": "Script",
+                    "script": "btnController.pwr",
+                    "data": {
+                        "event": {
+                            "fn": "switchScene",
+                            "args": {
+                                "targetScene": "prevScene"
+                            }
+                        },
+                        "radioGroup": "None"
+                    }
+                },
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "rectangle",
+                            "color": "white",
+                            "fill": false
+                        },
+                        {
+                            "shape": "textbox",
+                            "name": "Label",
+                            "text": "Back",
+                            "color": "white",
+                            "font": "Arial",
+                            "fontSize": 20,
+                            "hAlign": "center",
+                            "vAlign": "middle"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Options Button",
+            "position": {
+                "x": 620,
+                "y": 695
+            },
+            "size": {
+                "w": 100,
+                "h": 40
+            },
+            "components": {
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "rectangle",
+                            "color": "white",
+                            "fill": false
+                        },
+                        {
+                            "shape": "textbox",
+                            "name": "Label",
+                            "text": "Options",
+                            "color": "white",
+                            "font": "Arial",
+                            "fontSize": 20,
+                            "hAlign": "center",
+                            "vAlign": "middle"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

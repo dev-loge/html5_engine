@@ -1,0 +1,34 @@
+{
+    "name": "game",
+    "objects": [
+        {
+            "name": "Game Manager",
+            "components": {
+                "Game Manager": {
+                    "type": "Script",
+                    "script": "gameManager.pwr"
+                }
+            }
+        },
+        {
+            "name": "Field",
+            "components": {
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "line",
+                            "size": {
+                                "x1": 0,
+                                "y1": 375,
+                                "x2": 750,
+                                "y2": 375
+                            },
+                            "color": "white"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

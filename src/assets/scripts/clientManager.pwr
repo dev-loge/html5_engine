@@ -1,0 +1,75 @@
+
+var n = Engine.network;
+
+public function awake() {
+    // ensure no duplicate managers can exist
+    var exsistingManObj = Scene.gameObjects.find(obj => obj.name == 'Client Manager' && obj !== GameObject);
+    if (exsistingManObj) {
+        GameObject.destroy()
+        return;
+    }
+
+    // initialize data
+    GameObject.setProperty('options', {});
+
+    // network subscriptions
+    n.on('error', e => console.log('Internal Server Error', e))
+    n.on('gameReady', data => Engine.goToScene('game', data)) 
+}
+
+public function start() {
+
+    // build btn radio groups
+    var brgLists = {};
+    Scene.gameObjects.forEach(obj => {
+        var btnComp = obj.getComponentByName('Button');
+        if (btnComp && btnComp.radioGroup && btnComp.radioGroup != 'None') {
+            if (!brgLists[btnComp.radioGroup]) brgLists[btnComp.radioGroup] = [];
+            brgLists[btnComp.radioGroup].push(obj);
+        }
+    })
+
+    GameObject.setProperty('brgLists', brgLists);
+
+}
+
+public function update() {
+    
+    //manage btn radio groups
+    var brgLists = GameObject.brgLists || {};
+    for (var list of Object.keys(brgLists)) {
+        for (var obj of brgLists[list]) {
+            obj.setProperty('selected', GameObject[list] === obj.name);
+        }
+    }
+
+}
+
+// ============================= Button Functions ====================================
+public async function changeScene(targetScene) {
+    
+    if (targetScene != 'prevScene') {
+        GameObject.setProperty('prevScene', Scene.name)
+    } else {
+        targetScene = GameObject.prevScene;
+    }
+    
+    await Engine.goToScene(targetScene);
+}
+
+public function setOption(option, value) {
+    GameObject.options[option] = value;
+}
+
+public function startAIGame() {
+    var nameInput = Scene.gameObjects.find(obj => obj.name == 'Enter Name')
+    var playerName = nameInput.getComponentByName('Draw').getShape('Name Display').text;
+
+    console.log('sending start packet')
+
+    n.send('startAIGame', {
+                            option: GameObject.options.gameOption, 
+                            player: playerName,
+                            deck: ['Lake', 'Puddle']
+                        });
+}

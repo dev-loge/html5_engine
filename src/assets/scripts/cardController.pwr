@@ -1,0 +1,51 @@
+
+var drawComp  = GameObject.getComponentByName('Draw')
+
+public var card = object;
+
+public function awake() {
+    // build card graphics
+    function elementClr(element) {
+        //console.log(element)
+        switch (element) {
+            case 'Fire':  return 'red';
+            case 'Earth': return 'green';
+            case 'Water': return 'blue';
+            case 'Air':   return 'yellow';
+        }
+    }
+    drawComp.shapes.find(s => s.name == 'costCircle').color = elementClr(card.element)
+    drawComp.shapes.find(s => s.name == 'costText').text = card.cost.slice(0,-1)
+    drawComp.shapes.find(s => s.name == 'nameText').text = card.name
+    drawComp.shapes.find(s => s.name == 'typeText').text = card.type
+
+    var textBox = {};
+    var textBoxOutline = {};
+    switch(card.type) {
+        case 'Minion':
+
+            break;
+        case 'Trap':
+
+            break;
+        default:
+            textBoxOutline = new Shape({
+                shape: 'rectangle',
+                color: 'white',
+                fill: false,
+                size: {
+                    w: 85,
+                    h: 60
+                },
+                offset: {
+                    x: 7.5,
+                    y: 75
+                }
+
+            });
+    }
+}
+
+public function update() {
+
+}

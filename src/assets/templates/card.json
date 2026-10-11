@@ -1,0 +1,87 @@
+{
+    "name": "card",
+    "size": {
+        "w": 100,
+        "h": 150
+    },
+    "components": {
+        "Card Controller": {
+            "type": "Script",
+            "script": "cardController.pwr",
+            "data": {
+                "card": {}
+            }
+        },
+        "Draw": {
+            "type": "Draw",
+            "shapes": [
+                {
+                    "shape": "rectangle",
+                    "color": "white",
+                    "fill": false
+                },
+                {
+                    "name": "costCircle",
+                    "shape": "circle",
+                    "color": "white",
+                    "fill": false,
+                    "size": {
+                        "r": 10
+                    },
+                    "offset": {
+                        "x": 10,
+                        "y": 10
+                    }
+                },
+                {
+                    "name": "costText",
+                    "shape": "textbox",
+                    "color": "white",
+                    "text": "",
+                    "font": "Arial",
+                    "fontSize": 12,
+                    "hAlign": "left",
+                    "vAlign": "top",
+                    "overflow": "none",
+                    "fill": true,
+                    "offset": {
+                        "x": 2,
+                        "y": 5
+                    }
+                },
+                {
+                    "name": "nameText",
+                    "shape": "textbox",
+                    "color": "white",
+                    "text": "",
+                    "font": "Arial",
+                    "fontSize": 12,
+                    "hAlign": "center",
+                    "vAlign": "top",
+                    "overflow": "none",
+                    "fill": true,
+                    "offset": {
+                        "x": 0,
+                        "y": 5
+                    }
+                },
+                {
+                    "name": "typeText",
+                    "shape": "textbox",
+                    "color": "white",
+                    "text": "",
+                    "font": "Arial",
+                    "fontSize": 8,
+                    "hAlign": "center",
+                    "vAlign": "top",
+                    "overflow": "none",
+                    "fill": true,
+                    "offset": {
+                        "x": 0,
+                        "y": 17
+                    }
+                }
+            ]
+        }
+    }
+}

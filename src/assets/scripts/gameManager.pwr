@@ -1,0 +1,28 @@
+
+var gameData = Scene.transitionData;
+
+public function awake() {
+    console.log(JSON.stringify(gameData))
+
+    var x = 300;
+    for (var c of gameData.players[0].deck) {
+        
+        Scene.createGameObject({
+            template: 'card.json',
+            position: {
+                x: x,
+                y: 100,
+            },
+            componentData: {
+                "Card Controller": {
+                    card: c
+                }
+            }
+        })
+        x+= 105
+    }
+}
+
+public function update() {
+
+}

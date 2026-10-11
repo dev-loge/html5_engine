@@ -1,0 +1,58 @@
+
+var manObj = Scene.gameObjects.find(obj => obj.name == 'Client Manager')
+var clientManager = manObj.getComponentByName('ClientManager')
+var input = Engine.input;
+
+var drawComp = GameObject.getComponentByName('Draw');
+var nameDisplay = drawComp.getShape('Name Display');
+
+var typeMode = false;
+
+var xPos = 0;
+var yPos = 0;
+var w = 0;
+var h = 0;
+
+public function awake() {
+    xPos = GameObject.position.x;
+    yPos = GameObject.position.y;
+    w = GameObject.size.w;
+    h = GameObject.size.h;
+}
+
+public function update() {
+    // ============================ Hover & Click Behaviour =============================
+    var mPos = input.mousePosition;
+    var hovered = mPos.x < xPos + w && mPos.x > xPos && mPos.y < yPos + h && mPos.y > yPos;
+
+    if (hovered || typeMode == true) {
+        drawComp.shapes[0].color = 'yellow';
+    } else {
+        drawComp.shapes[0].color = 'white';
+    }
+
+    if (input.mouseButtonsDown.has('left')) {
+        typeMode = hovered;
+    }
+
+    // =============================== Type Mode ========================================
+    if (typeMode) {
+        for (var key of input.keysPressed) 
+            switch(key) {
+                case ('Enter'):
+                    typeMode = false;
+                    break;
+                case ('Backspace'):
+                    nameDisplay.text = nameDisplay.text.slice(0,-1);
+                    break;
+                case ('Shift'):
+                    break;
+                default:
+                    if (input.isKeyDown('Shift'))
+                        nameDisplay.text += key.toUpperCase();
+                    else
+                        nameDisplay.text += key;
+            }
+            
+    }
+}

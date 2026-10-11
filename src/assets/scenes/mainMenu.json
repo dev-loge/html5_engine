@@ -1,0 +1,199 @@
+{
+    "name": "Main Menu",
+    "objects": [
+        {
+            "name": "Client Manager",
+            "_persist": true,
+            "components": {
+                "ClientManager": {
+                    "type": "Script",
+                    "script": "clientManager.pwr"
+                },
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "textbox",
+                            "name": "Network Label",
+                            "text": "",
+                            "color": "red",
+                            "font": "Arial",
+                            "fontSize": 18,
+                            "overflow": "none",
+                            "hAlign": "left",
+                            "vAlign": "top",
+                            "offset": {
+                                "x": 5,
+                                "y": 5
+                            }
+                        }
+                    ]
+                },
+                "Network": {
+                    "type": "Script",
+                    "script": "svrStatus.pwr"
+                }
+            }
+        },
+        {
+            "name": "Title",
+            "position": {
+                "x": 50,
+                "y": 100
+            },
+            "components": {
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "textbox",
+                            "name": "Text",
+                            "text": "Alchemy Playtest",
+                            "color": "white",
+                            "font": "Arial",
+                            "fontSize": 56,
+                            "overflow": "none"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Play Button",
+            "position": {
+                "x": 50,
+                "y": 300
+            },
+            "size": {
+                "w": 200,
+                "h": 75
+            },
+            "components": {
+                "Button": {
+                    "type": "Script",
+                    "script": "btnController.pwr",
+                    "data": {
+                        "event": {
+                            "fn": "switchScene",
+                            "args": {
+                                "targetScene": "gamePrep"
+                            }
+                        },
+                        "radioGroup": "None"
+                    }
+                },
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "rectangle",
+                            "color": "white",
+                            "fill": false
+                        },
+                        {
+                            "shape": "textbox",
+                            "name": "Text",
+                            "text": "Play",
+                            "color": "white",
+                            "font": "Arial",
+                            "fontSize": 32,
+                            "hAlign": "center",
+                            "vAlign": "middle"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Tutorial Button",
+            "position": {
+                "x": 50,
+                "y": 400
+            },
+            "size": {
+                "w": 100,
+                "h": 50
+            },
+            "components": {
+                "Button": {
+                    "type": "Script",
+                    "script": "btnController.pwr",
+                    "data": {
+                        "event": {
+                            "fn": "switchScene",
+                            "args": {
+                                "targetScene": "tutorial"
+                            }
+                        },
+                        "radioGroup": "None"
+                    }
+                },
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "rectangle",
+                            "color": "white",
+                            "fill": false
+                        },
+                        {
+                            "shape": "textbox",
+                            "name": "Text",
+                            "text": "Tutorial",
+                            "color": "white",
+                            "font": "Arial",
+                            "fontSize": 20,
+                            "hAlign": "center",
+                            "vAlign": "middle"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Options Button",
+            "position": {
+                "x": 620,
+                "y": 695
+            },
+            "size": {
+                "w": 100,
+                "h": 40
+            },
+            "components": {
+                "Draw": {
+                    "type": "Draw",
+                    "shapes": [
+                        {
+                            "shape": "rectangle",
+                            "color": "white",
+                            "fill": false
+                        },
+                        {
+                            "shape": "textbox",
+                            "name": "Label",
+                            "text": "Options",
+                            "color": "white",
+                            "font": "Arial",
+                            "fontSize": 20,
+                            "hAlign": "center",
+                            "vAlign": "middle"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Network Status",
+            "position": {
+                "x": 10,
+                "y": 10
+            },
+            "size": {
+                "w": 200,
+                "h": 40
+            },
+            "components": {}
+        }
+    ]
+}

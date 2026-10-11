@@ -1,0 +1,15 @@
+var textBox = GameObject.getComponentByName('Draw').getShape('Network Label')
+
+public function update() {
+    
+    if (!Engine.network.connected) {
+        textBox.text = 'Server Unavailable'
+
+        if (Engine.network.status !== 'connecting')
+            Engine.network.connect(Engine.settings.networkUrl)
+
+    } else {
+        textBox.text = ''
+    }
+        
+}

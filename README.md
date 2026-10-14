@@ -1,2 +1,2 @@
-# html5_engine
-Game engine coded entirely in html5 I am coding on stream @ twitch.tv/dev_loge
+# Pwr_Engine
+Game engine coded entirely in JS made explicitly to make web games.
